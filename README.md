@@ -14,13 +14,7 @@ How do I use it?
 
 ##### Gradle
 ```groovy
-repositories {
-    jcenter()
-}
-
-dependencies {
-    compile 'jp.wasabeef:blurry:0.0.1'
-}
+compile 'jp.wasabeef:blurry:0.0.1'
 ```
 
 ### Functions
