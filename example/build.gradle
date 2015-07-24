@@ -1,0 +1,27 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion COMPILE_SDK_VERSION as int
+    buildToolsVersion BUILD_TOOLS_VERSION
+
+    defaultConfig {
+        minSdkVersion MIN_SDK_VERSION as int
+        targetSdkVersion TARGET_SDK_VERSION as int
+        versionCode VERSION_CODE as int
+        versionName VERSION_NAME
+
+        renderscriptTargetApi RENDERSCRIPT_TARGET_API as int
+        renderscriptSupportModeEnabled true
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    compile project(':blurry')
+    compile "com.android.support:appcompat-v7:${SUPPORT_PACKAGE_VERSION}"
+}

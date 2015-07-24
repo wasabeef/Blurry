@@ -1,0 +1,73 @@
+<RelativeLayout
+    android:id="@+id/content"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <View
+        android:id="@+id/spacer"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_centerInParent="true"/>
+
+    <ImageView
+        android:id="@+id/right_top"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/spacer"
+        android:layout_alignLeft="@id/spacer"
+        android:contentDescription="@null"
+        android:scaleType="centerCrop"
+        android:src="@drawable/demo"/>
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/spacer"
+        android:layout_alignRight="@id/spacer"
+        android:contentDescription="@null"
+        android:scaleType="centerCrop"
+        android:src="@drawable/demo"/>
+
+    <ImageView
+        android:id="@+id/right_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignLeft="@id/spacer"
+        android:layout_below="@id/spacer"
+        android:contentDescription="@null"
+        android:scaleType="centerCrop"
+        android:src="@drawable/demo"/>
+
+    <ImageView
+        android:id="@+id/left_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignRight="@id/spacer"
+        android:layout_below="@id/spacer"
+        android:contentDescription="@null"
+        android:scaleType="centerCrop"
+        android:src="@drawable/demo"/>
+
+    <ImageView
+        android:id="@+id/overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:contentDescription="@null"/>
+
+    <Button
+        android:id="@+id/button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@null"
+        android:layout_centerInParent="true"
+        android:text="@string/app_name"
+        android:elevation="10dp"
+        android:textColor="@android:color/black"
+        android:textSize="88sp"
+        android:textStyle="bold"/>
+
+</RelativeLayout>
+
