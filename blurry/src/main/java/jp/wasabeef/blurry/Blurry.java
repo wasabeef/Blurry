@@ -87,7 +87,7 @@ public class Blurry {
                 Helper.setBackground(blurredView, drawable);
                 ((ViewGroup) target).addView(blurredView);
             } else {
-                throw new IllegalArgumentException("view parent must be ViewGroup");
+                throw new IllegalArgumentException("View parent must be ViewGroup");
             }
         }
     }
