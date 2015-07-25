@@ -26,7 +26,7 @@ dependencies {
 
 **Overlay**
 
-- Parent must be ViewGroup
+Parent must be ViewGroup
 
 ```java
 Blurry.with(context).radius(25).sampling(2).onto(rootView);
