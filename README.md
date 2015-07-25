@@ -1,7 +1,7 @@
 [![License](https://img.shields.io/badge/license-Apache%202-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 [![Download](https://api.bintray.com/packages/wasabeef/maven/blurry/images/download.svg)](https://bintray.com/wasabeef/maven/blurry/_latestVersion)
 
-`Blurry` is a easy blur library for `Android`.
+`Blurry` is an easy blur library for `Android`.
 
 ![logo](art/blurry.png)
 
