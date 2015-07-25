@@ -9,6 +9,7 @@ import android.widget.ImageView;
 
 import jp.wasabeef.blurry.internal.Blur;
 import jp.wasabeef.blurry.internal.BlurFactor;
+import jp.wasabeef.blurry.internal.BlurTask;
 import jp.wasabeef.blurry.internal.Helper;
 
 /**
@@ -51,6 +52,7 @@ public class Blurry {
         private View blurredView;
         private Context context;
         private BlurFactor factor;
+        private boolean async;
 
         public Composer(Context context) {
             this.context = context;
@@ -74,18 +76,35 @@ public class Blurry {
             return this;
         }
 
-        public ImageComposer capture(View capture) {
-            return new ImageComposer(context, capture, factor);
+        public Composer async() {
+            this.async = true;
+            return this;
         }
 
-        public void onto(View target) {
+        public ImageComposer capture(View capture) {
+            return new ImageComposer(context, capture, factor, async);
+        }
+
+        public void onto(final View target) {
             if (target instanceof ViewGroup) {
                 factor.width = target.getMeasuredWidth();
                 factor.height = target.getMeasuredHeight();
-                Drawable drawable = new BitmapDrawable(context.getResources(),
-                        Blur.rs(context, target, factor));
-                Helper.setBackground(blurredView, drawable);
-                ((ViewGroup) target).addView(blurredView);
+
+                if (async) {
+                    BlurTask.execute(target, factor, new BlurTask.Callback() {
+                        @Override
+                        public void done(BitmapDrawable drawable) {
+                            Helper.setBackground(blurredView, drawable);
+                            ((ViewGroup) target).addView(blurredView);
+                        }
+                    });
+                } else {
+                    Drawable drawable =
+                            new BitmapDrawable(context.getResources(), Blur.rs(target, factor));
+
+                    Helper.setBackground(blurredView, drawable);
+                    ((ViewGroup) target).addView(blurredView);
+                }
             } else {
                 throw new IllegalArgumentException("View parent must be ViewGroup");
             }
@@ -97,19 +116,31 @@ public class Blurry {
         private Context context;
         private View capture;
         private BlurFactor factor;
+        private boolean async;
 
-        public ImageComposer(Context context, View capture, BlurFactor factor) {
+        public ImageComposer(Context context, View capture, BlurFactor factor, boolean async) {
             this.context = context;
             this.capture = capture;
             this.factor = factor;
+            this.async = async;
         }
 
-        public void into(ImageView target) {
+        public void into(final ImageView target) {
             factor.width = capture.getMeasuredWidth();
             factor.height = capture.getMeasuredHeight();
-            Drawable drawable =
-                    new BitmapDrawable(context.getResources(), Blur.rs(context, capture, factor));
-            target.setImageDrawable(drawable);
+
+            if (async) {
+                BlurTask.execute(capture, factor, new BlurTask.Callback() {
+                    @Override
+                    public void done(BitmapDrawable drawable) {
+                        target.setImageDrawable(drawable);
+                    }
+                });
+            } else {
+                Drawable drawable =
+                        new BitmapDrawable(context.getResources(), Blur.rs(capture, factor));
+                target.setImageDrawable(drawable);
+            }
         }
     }
 }

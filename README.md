@@ -18,13 +18,16 @@ How do I use it?
 ##### Gradle
 ```groovy
 dependencies {
-    compile 'jp.wasabeef:blurry:0.0.2'
+    compile 'jp.wasabeef:blurry:0.0.3'
 }
 ```
 
 ### Functions
 
 **Overlay**
+
+- Parent must be ViewGroup
+
 ```java
 Blurry.with(context).radius(25).sampling(2).onto(rootView);
 ```
@@ -35,11 +38,18 @@ Blurry.with(context).capture(view).into(imageView);
 ```
 
 **Blur Options**
+
+- Radius
+- Down Sampling
+- Color Filter
+- Asynchronous Support
+
 ```java
 Blurry.with(context)
   .radius(10)
   .sampling(8)
   .color(Color.argb(66, 255, 255, 0))
+  .async()
   .onto(rootView);
 ```
 

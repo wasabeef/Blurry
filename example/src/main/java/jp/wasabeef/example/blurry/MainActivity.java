@@ -26,12 +26,14 @@ public class MainActivity extends AppCompatActivity {
                         .radius(25)
                         .sampling(1)
                         .color(Color.argb(66, 0, 255, 255))
+                        .async()
                         .capture(findViewById(R.id.right_top))
                         .into((ImageView) findViewById(R.id.right_top));
 
                 Blurry.with(MainActivity.this)
                         .radius(10)
                         .sampling(8)
+                        .async()
                         .capture(findViewById(R.id.right_bottom))
                         .into((ImageView) findViewById(R.id.right_bottom));
 
@@ -39,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
                         .radius(25)
                         .sampling(1)
                         .color(Color.argb(66, 255, 255, 0))
+                        .async()
                         .capture(findViewById(R.id.left_bottom))
                         .into((ImageView) findViewById(R.id.left_bottom));
 
@@ -60,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
                     Blurry.with(MainActivity.this)
                             .radius(25)
                             .sampling(2)
+                            .async()
                             .onto(findViewById(R.id.content));
                     Log.d(getString(R.string.app_name),
                             "TIME " + String.valueOf(System.currentTimeMillis() - startMs) + "ms");

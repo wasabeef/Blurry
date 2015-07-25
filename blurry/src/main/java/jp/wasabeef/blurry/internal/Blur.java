@@ -1,6 +1,5 @@
 package jp.wasabeef.blurry.internal;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -30,7 +29,7 @@ import android.view.View;
 
 public class Blur {
 
-    public static Bitmap rs(Context context, View view, BlurFactor factor) {
+    public static Bitmap rs(View view, BlurFactor factor) {
         int width = factor.width / factor.sampling;
         int height = factor.height / factor.sampling;
 
@@ -54,7 +53,7 @@ public class Blur {
         cache.recycle();
         view.destroyDrawingCache();
 
-        RenderScript rs = RenderScript.create(context);
+        RenderScript rs = RenderScript.create(view.getContext());
         Allocation input = Allocation.createFromBitmap(rs, bitmap,
                 Allocation.MipmapControl.MIPMAP_NONE, Allocation.USAGE_SCRIPT);
         Allocation output = Allocation.createTyped(rs, input.getType());
