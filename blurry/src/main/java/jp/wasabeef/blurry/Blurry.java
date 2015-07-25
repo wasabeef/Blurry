@@ -78,13 +78,17 @@ public class Blurry {
             return new ImageComposer(context, capture, factor);
         }
 
-        public void onto(ViewGroup target) {
-            factor.width = target.getMeasuredWidth();
-            factor.height = target.getMeasuredHeight();
-            Drawable drawable =
-                    new BitmapDrawable(context.getResources(), Blur.rs(context, target, factor));
-            Helper.setBackground(blurredView, drawable);
-            target.addView(blurredView);
+        public void onto(View target) {
+            if (target instanceof ViewGroup) {
+                factor.width = target.getMeasuredWidth();
+                factor.height = target.getMeasuredHeight();
+                Drawable drawable = new BitmapDrawable(context.getResources(),
+                        Blur.rs(context, target, factor));
+                Helper.setBackground(blurredView, drawable);
+                ((ViewGroup) target).addView(blurredView);
+            } else {
+                throw new IllegalArgumentException("view parent must be ViewGroup");
+            }
         }
     }
 

@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
                     Blurry.with(MainActivity.this)
                             .radius(25)
                             .sampling(2)
-                            .onto((RelativeLayout) findViewById(R.id.content));
+                            .onto(findViewById(R.id.content));
                     Log.d(getString(R.string.app_name),
                             "TIME " + String.valueOf(System.currentTimeMillis() - startMs) + "ms");
                 }
