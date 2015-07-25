@@ -14,7 +14,9 @@ How do I use it?
 
 ##### Gradle
 ```groovy
-compile 'jp.wasabeef:blurry:0.0.1'
+dependencies {
+    compile 'jp.wasabeef:blurry:0.0.1'
+}
 ```
 
 ### Functions
