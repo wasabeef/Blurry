@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>Blurry by wasabeef</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">Blurry</h1>
+      <h2 class="project-tagline">Blurry is an easy blur library for Android</h2>
+      <a href="https://github.com/wasabeef/Blurry" class="btn">View on GitHub</a>
+      <a href="https://github.com/wasabeef/Blurry/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/wasabeef/Blurry/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <p><a href="https://android-arsenal.com/details/1/2192"><img src="https://img.shields.io/badge/Android%20Arsenal-Blurry-brightgreen.svg?style=flat" alt="Android Arsenal"></a>
+<a href="https://www.apache.org/licenses/LICENSE-2.0"><img src="https://img.shields.io/badge/license-Apache%202-blue.svg" alt="License"></a>
+<a href="https://bintray.com/wasabeef/maven/blurry/_latestVersion"><img src="https://api.bintray.com/packages/wasabeef/maven/blurry/images/download.svg" alt="Download"></a></p>
+
+<p><code>Blurry</code> is an easy blur library for <code>Android</code>.</p>
+
+<p><img src="https://github.com/wasabeef/Blurry/raw/master/art/blurry.png" alt="logo"></p>
+
+<h2>
+<a id="screenshot" class="anchor" href="#screenshot" aria-hidden="true"><span class="octicon octicon-link"></span></a>Screenshot</h2>
+
+<p><img src="https://github.com/wasabeef/Blurry/raw/master/art/blurry.gif" alt="Demo"></p>
+
+<h2>
+<a id="how-do-i-use-it" class="anchor" href="#how-do-i-use-it" aria-hidden="true"><span class="octicon octicon-link"></span></a>How do I use it?</h2>
+
+<h3>
+<a id="setup" class="anchor" href="#setup" aria-hidden="true"><span class="octicon octicon-link"></span></a>Setup</h3>
+
+<h5>
+<a id="gradle" class="anchor" href="#gradle" aria-hidden="true"><span class="octicon octicon-link"></span></a>Gradle</h5>
+
+<div class="highlight highlight-groovy"><pre>dependencies {
+    compile <span class="pl-s"><span class="pl-pds">'</span>jp.wasabeef:blurry:x.x.x<span class="pl-pds">'</span></span>
+}</pre></div>
+
+<h3>
+<a id="functions" class="anchor" href="#functions" aria-hidden="true"><span class="octicon octicon-link"></span></a>Functions</h3>
+
+<p><strong>Overlay</strong></p>
+
+<p>Parent must be ViewGroup</p>
+
+<div class="highlight highlight-java"><pre><span class="pl-smi">Blurry</span><span class="pl-k">.</span>with(context)<span class="pl-k">.</span>radius(<span class="pl-c1">25</span>)<span class="pl-k">.</span>sampling(<span class="pl-c1">2</span>)<span class="pl-k">.</span>onto(rootView);</pre></div>
+
+<p><strong>Into</strong></p>
+
+<div class="highlight highlight-java"><pre><span class="pl-smi">Blurry</span><span class="pl-k">.</span>with(context)<span class="pl-k">.</span>capture(view)<span class="pl-k">.</span>into(imageView);</pre></div>
+
+<p><strong>Blur Options</strong></p>
+
+<ul>
+<li>Radius</li>
+<li>Down Sampling</li>
+<li>Color Filter</li>
+<li>Asynchronous Support</li>
+</ul>
+
+<div class="highlight highlight-java"><pre><span class="pl-smi">Blurry</span><span class="pl-k">.</span>with(context)
+  .radius(<span class="pl-c1">10</span>)
+  .sampling(<span class="pl-c1">8</span>)
+  .color(<span class="pl-smi">Color</span><span class="pl-k">.</span>argb(<span class="pl-c1">66</span>, <span class="pl-c1">255</span>, <span class="pl-c1">255</span>, <span class="pl-c1">0</span>))
+  .async()
+  .onto(rootView);</pre></div>
+
+<h2>
+<a id="requirements" class="anchor" href="#requirements" aria-hidden="true"><span class="octicon octicon-link"></span></a>Requirements</h2>
+
+<p>Android 2.3+</p>
+
+<h2>
+<a id="developed-by" class="anchor" href="#developed-by" aria-hidden="true"><span class="octicon octicon-link"></span></a>Developed By</h2>
+
+<p>Daichi Furiya (Wasabeef) - <a href="mailto:dadadada.chop@gmail.com">dadadada.chop@gmail.com</a></p>
+
+<p><a href="https://twitter.com/wasabeef_jp">
+<img alt="Follow me on Twitter" src="https://raw.githubusercontent.com/wasabeef/art/master/twitter.png" width="75">
+</a></p>
+
+<h2>
+<a id="license" class="anchor" href="#license" aria-hidden="true"><span class="octicon octicon-link"></span></a>License</h2>
+
+<pre><code>Copyright 2015 Wasabeef
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+</code></pre>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/wasabeef/Blurry">Blurry</a> is maintained by <a href="https://github.com/wasabeef">wasabeef</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>
+
