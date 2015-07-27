@@ -39,10 +39,20 @@
 <a id="setup" class="anchor" href="#setup" aria-hidden="true"><span class="octicon octicon-link"></span></a>Setup</h3>
 
 <h5>
-<a id="gradle" class="anchor" href="#gradle" aria-hidden="true"><span class="octicon octicon-link"></span></a>Gradle</h5>
+<a id="dependencies" class="anchor" href="#dependencies" aria-hidden="true"><span class="octicon octicon-link"></span></a>Dependencies</h5>
 
 <div class="highlight highlight-groovy"><pre>dependencies {
     compile <span class="pl-s"><span class="pl-pds">'</span>jp.wasabeef:blurry:x.x.x<span class="pl-pds">'</span></span>
+}</pre></div>
+
+<h5>
+<a id="enable-renderscript" class="anchor" href="#enable-renderscript" aria-hidden="true"><span class="octicon octicon-link"></span></a>Enable Renderscript</h5>
+
+<div class="highlight highlight-groovy"><pre>android {
+    defaultConfig {
+        renderscriptTargetApi <span class="pl-c1">22</span>
+        renderscriptSupportModeEnabled <span class="pl-c1">true</span>
+    }
 }</pre></div>
 
 <h3>
