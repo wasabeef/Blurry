@@ -23,6 +23,16 @@ dependencies {
 }
 ```
 
+##### Enable Renderscript
+```groovy
+android {
+    defaultConfig {
+        renderscriptTargetApi 22
+        renderscriptSupportModeEnabled true
+    }
+}
+```
+
 ### Functions
 
 **Overlay**
