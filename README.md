@@ -16,7 +16,7 @@ How do I use it?
 
 ### Setup
 
-##### Gradle
+##### Dependencies
 ```groovy
 dependencies {
     compile 'jp.wasabeef:blurry:0.0.3'
