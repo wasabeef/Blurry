@@ -18,7 +18,7 @@ How do I use it?
 ##### Gradle
 ```groovy
 dependencies {
-    compile 'jp.wasabeef:blurry:0.0.3'
+    compile 'jp.wasabeef:blurry:1.0.0'
 }
 ```
 
@@ -29,7 +29,7 @@ dependencies {
 - Parent must be ViewGroup
 
 ```java
-Blurry.with(context).radius(25).sampling(2).onto(rootView);
+Blurry.with(context).radius(25).sampling(2).onto((ViewGroup) rootView);
 ```
 
 **Into**
@@ -43,6 +43,7 @@ Blurry.with(context).capture(view).into(imageView);
 - Down Sampling
 - Color Filter
 - Asynchronous Support
+- Animation (Overlay Only)
 
 ```java
 Blurry.with(context)
@@ -50,6 +51,7 @@ Blurry.with(context)
   .sampling(8)
   .color(Color.argb(66, 255, 255, 0))
   .async()
+  .animate(500)
   .onto(rootView);
 ```
 
