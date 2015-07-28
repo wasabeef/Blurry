@@ -1,7 +1,8 @@
+[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-Blurry-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/2192)
 [![License](https://img.shields.io/badge/license-Apache%202-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 [![Download](https://api.bintray.com/packages/wasabeef/maven/blurry/images/download.svg)](https://bintray.com/wasabeef/maven/blurry/_latestVersion)
 
-`Blurry` is a easy blur library for `Android`.
+`Blurry` is an easy blur library for `Android`.
 
 ![logo](art/blurry.png)
 
@@ -15,10 +16,20 @@ How do I use it?
 
 ### Setup
 
-##### Gradle
+##### Dependencies
 ```groovy
 dependencies {
     compile 'jp.wasabeef:blurry:1.0.0'
+}
+```
+
+##### Enable Renderscript
+```groovy
+android {
+    defaultConfig {
+        renderscriptTargetApi 22
+        renderscriptSupportModeEnabled true
+    }
 }
 ```
 
@@ -26,7 +37,7 @@ dependencies {
 
 **Overlay**
 
-- Parent must be ViewGroup
+Parent must be ViewGroup
 
 ```java
 Blurry.with(context).radius(25).sampling(2).onto((ViewGroup) rootView);
