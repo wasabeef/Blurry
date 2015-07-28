@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
@@ -57,14 +58,15 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onLongClick(View v) {
                 if (blurred) {
-                    Blurry.delete((RelativeLayout) findViewById(R.id.content));
+                    Blurry.delete((ViewGroup) findViewById(R.id.content));
                 } else {
                     long startMs = System.currentTimeMillis();
                     Blurry.with(MainActivity.this)
                             .radius(25)
                             .sampling(2)
                             .async()
-                            .onto(findViewById(R.id.content));
+                            .animate(500)
+                            .onto((ViewGroup) findViewById(R.id.content));
                     Log.d(getString(R.string.app_name),
                             "TIME " + String.valueOf(System.currentTimeMillis() - startMs) + "ms");
                 }

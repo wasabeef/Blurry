@@ -3,6 +3,7 @@ package jp.wasabeef.blurry.internal;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.view.View;
+import android.view.animation.AlphaAnimation;
 
 /**
  * Copyright (C) 2015 Wasabeef
@@ -37,5 +38,11 @@ public final class Helper {
             }
         }
         return false;
+    }
+
+    public static void animate(View v, int duration) {
+        AlphaAnimation alpha = new AlphaAnimation(0f, 1f);
+        alpha.setDuration(duration);
+        v.startAnimation(alpha);
     }
 }

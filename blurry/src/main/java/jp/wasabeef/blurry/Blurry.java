@@ -36,12 +36,10 @@ public class Blurry {
         return new Composer(context);
     }
 
-    public static void delete(View target) {
-        if (target instanceof ViewGroup) {
-            View view = target.findViewWithTag(TAG);
-            if (view != null) {
-                ((ViewGroup) target).removeView(view);
-            }
+    public static void delete(ViewGroup target) {
+        View view = target.findViewWithTag(TAG);
+        if (view != null) {
+            target.removeView(view);
         }
     }
 
@@ -51,6 +49,8 @@ public class Blurry {
         private Context context;
         private BlurFactor factor;
         private boolean async;
+        private boolean animate;
+        private int duration = 300;
 
         public Composer(Context context) {
             this.context = context;
@@ -75,7 +75,19 @@ public class Blurry {
         }
 
         public Composer async() {
-            this.async = true;
+            async = true;
+            return this;
+
+        }
+
+        public Composer animate() {
+            animate = true;
+            return this;
+        }
+
+        public Composer animate(int duration) {
+            animate = true;
+            this.duration = duration;
             return this;
         }
 
@@ -83,28 +95,30 @@ public class Blurry {
             return new ImageComposer(context, capture, factor, async);
         }
 
-        public void onto(final View target) {
-            if (target instanceof ViewGroup) {
-                factor.width = target.getMeasuredWidth();
-                factor.height = target.getMeasuredHeight();
+        public void onto(final ViewGroup target) {
+            factor.width = target.getMeasuredWidth();
+            factor.height = target.getMeasuredHeight();
 
-                if (async) {
-                    BlurTask.execute(target, factor, new BlurTask.Callback() {
-                        @Override
-                        public void done(BitmapDrawable drawable) {
-                            Helper.setBackground(blurredView, drawable);
-                            ((ViewGroup) target).addView(blurredView);
-                        }
-                    });
-                } else {
-                    Drawable drawable =
-                            new BitmapDrawable(context.getResources(), Blur.rs(target, factor));
-
-                    Helper.setBackground(blurredView, drawable);
-                    ((ViewGroup) target).addView(blurredView);
-                }
+            if (async) {
+                BlurTask.execute(target, factor, new BlurTask.Callback() {
+                    @Override
+                    public void done(BitmapDrawable drawable) {
+                        addView(target, drawable);
+                    }
+                });
             } else {
-                throw new IllegalArgumentException("View parent must be ViewGroup");
+                Drawable drawable =
+                        new BitmapDrawable(context.getResources(), Blur.rs(target, factor));
+                addView(target, drawable);
+            }
+        }
+
+        private void addView(ViewGroup target, Drawable drawable) {
+            Helper.setBackground(blurredView, drawable);
+            target.addView(blurredView);
+
+            if (animate) {
+                Helper.animate(blurredView, duration);
             }
         }
     }
