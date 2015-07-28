@@ -36,14 +36,12 @@ public class Blurry {
         return new Composer(context);
     }
 
-    public static void delete(ImageView image) {
-        image.setImageDrawable(null);
-    }
-
-    public static void delete(ViewGroup group) {
-        View view = group.findViewWithTag(TAG);
-        if (view != null) {
-            group.removeView(view);
+    public static void delete(View target) {
+        if (target instanceof ViewGroup) {
+            View view = target.findViewWithTag(TAG);
+            if (view != null) {
+                ((ViewGroup) target).removeView(view);
+            }
         }
     }
 
