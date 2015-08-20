@@ -23,26 +23,26 @@ import android.view.animation.AlphaAnimation;
 
 public final class Helper {
 
-    public static void setBackground(View v, Drawable drawable) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            v.setBackground(drawable);
-        } else {
-            v.setBackgroundDrawable(drawable);
-        }
+  public static void setBackground(View v, Drawable drawable) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+      v.setBackground(drawable);
+    } else {
+      v.setBackgroundDrawable(drawable);
     }
+  }
 
-    public static boolean hasZero(int... args) {
-        for (int num : args) {
-            if (num == 0) {
-                return true;
-            }
-        }
-        return false;
+  public static boolean hasZero(int... args) {
+    for (int num : args) {
+      if (num == 0) {
+        return true;
+      }
     }
+    return false;
+  }
 
-    public static void animate(View v, int duration) {
-        AlphaAnimation alpha = new AlphaAnimation(0f, 1f);
-        alpha.setDuration(duration);
-        v.startAnimation(alpha);
-    }
+  public static void animate(View v, int duration) {
+    AlphaAnimation alpha = new AlphaAnimation(0f, 1f);
+    alpha.setDuration(duration);
+    v.startAnimation(alpha);
+  }
 }

@@ -29,49 +29,49 @@ import android.view.View;
 
 public class Blur {
 
-    public static Bitmap rs(View view, BlurFactor factor) {
-        int width = factor.width / factor.sampling;
-        int height = factor.height / factor.sampling;
+  public static Bitmap rs(View view, BlurFactor factor) {
+    int width = factor.width / factor.sampling;
+    int height = factor.height / factor.sampling;
 
-        if (Helper.hasZero(width, height)) {
-            return null;
-        }
-
-        Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-
-        Canvas canvas = new Canvas(bitmap);
-        canvas.scale(1 / (float) factor.sampling, 1 / (float) factor.sampling);
-        Paint paint = new Paint();
-        paint.setFlags(Paint.FILTER_BITMAP_FLAG | Paint.ANTI_ALIAS_FLAG);
-        PorterDuffColorFilter filter =
-                new PorterDuffColorFilter(factor.color, PorterDuff.Mode.SRC_ATOP);
-        paint.setColorFilter(filter);
-
-        view.buildDrawingCache();
-        Bitmap cache = view.getDrawingCache();
-        canvas.drawBitmap(cache, 0, 0, paint);
-        cache.recycle();
-        view.destroyDrawingCache();
-
-        RenderScript rs = RenderScript.create(view.getContext());
-        Allocation input = Allocation.createFromBitmap(rs, bitmap,
-                Allocation.MipmapControl.MIPMAP_NONE, Allocation.USAGE_SCRIPT);
-        Allocation output = Allocation.createTyped(rs, input.getType());
-        ScriptIntrinsicBlur blur = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs));
-
-        blur.setInput(input);
-        blur.setRadius(factor.radius);
-        blur.forEach(output);
-        output.copyTo(bitmap);
-
-        rs.destroy();
-
-        if (factor.sampling == BlurFactor.DEFAULT_SAMPLING) {
-            return bitmap;
-        } else {
-            Bitmap scaled = Bitmap.createScaledBitmap(bitmap, factor.width, factor.height, true);
-            bitmap.recycle();
-            return scaled;
-        }
+    if (Helper.hasZero(width, height)) {
+      return null;
     }
+
+    Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+
+    Canvas canvas = new Canvas(bitmap);
+    canvas.scale(1 / (float) factor.sampling, 1 / (float) factor.sampling);
+    Paint paint = new Paint();
+    paint.setFlags(Paint.FILTER_BITMAP_FLAG | Paint.ANTI_ALIAS_FLAG);
+    PorterDuffColorFilter filter =
+        new PorterDuffColorFilter(factor.color, PorterDuff.Mode.SRC_ATOP);
+    paint.setColorFilter(filter);
+
+    view.buildDrawingCache();
+    Bitmap cache = view.getDrawingCache();
+    canvas.drawBitmap(cache, 0, 0, paint);
+    cache.recycle();
+    view.destroyDrawingCache();
+
+    RenderScript rs = RenderScript.create(view.getContext());
+    Allocation input = Allocation.createFromBitmap(rs, bitmap, Allocation.MipmapControl.MIPMAP_NONE,
+        Allocation.USAGE_SCRIPT);
+    Allocation output = Allocation.createTyped(rs, input.getType());
+    ScriptIntrinsicBlur blur = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs));
+
+    blur.setInput(input);
+    blur.setRadius(factor.radius);
+    blur.forEach(output);
+    output.copyTo(bitmap);
+
+    rs.destroy();
+
+    if (factor.sampling == BlurFactor.DEFAULT_SAMPLING) {
+      return bitmap;
+    } else {
+      Bitmap scaled = Bitmap.createScaledBitmap(bitmap, factor.width, factor.height, true);
+      bitmap.recycle();
+      return scaled;
+    }
+  }
 }

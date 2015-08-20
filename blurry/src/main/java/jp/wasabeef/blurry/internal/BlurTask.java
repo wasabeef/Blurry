@@ -5,7 +5,6 @@ import android.content.res.Resources;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
 import android.view.View;
-
 import java.lang.ref.WeakReference;
 
 /**
@@ -26,46 +25,43 @@ import java.lang.ref.WeakReference;
 
 public class BlurTask extends AsyncTask<Void, Void, BitmapDrawable> {
 
-    public interface Callback {
+  public interface Callback {
 
-        void done(BitmapDrawable drawable);
+    void done(BitmapDrawable drawable);
+  }
+
+  private Resources res;
+  private WeakReference<View> captureWeakRef;
+  private WeakReference<Context> contextWeakRef;
+  private BlurFactor factor;
+  private Callback callback;
+
+  public static void execute(View capture, BlurFactor factor, Callback callback) {
+    new BlurTask(capture, factor, callback).execute();
+  }
+
+  private BlurTask(View capture, BlurFactor factor, Callback callback) {
+    captureWeakRef = new WeakReference<>(capture);
+    contextWeakRef = new WeakReference<>(capture.getContext());
+    this.res = capture.getResources();
+    this.factor = factor;
+    this.callback = callback;
+  }
+
+  @Override protected BitmapDrawable doInBackground(Void... params) {
+    Context context = contextWeakRef.get();
+    View capture = captureWeakRef.get();
+    if (context != null && capture != null) {
+      return new BitmapDrawable(res, Blur.rs(capture, factor));
     }
 
-    private Resources res;
-    private WeakReference<View> captureWeakRef;
-    private WeakReference<Context> contextWeakRef;
-    private BlurFactor factor;
-    private Callback callback;
+    return null;
+  }
 
-
-    public static void execute(View capture, BlurFactor factor, Callback callback) {
-        new BlurTask(capture, factor, callback).execute();
+  @Override protected void onPostExecute(BitmapDrawable bitmapDrawable) {
+    super.onPostExecute(bitmapDrawable);
+    if (callback != null) {
+      callback.done(bitmapDrawable);
     }
-
-    private BlurTask(View capture, BlurFactor factor, Callback callback) {
-        captureWeakRef = new WeakReference<>(capture);
-        contextWeakRef = new WeakReference<>(capture.getContext());
-        this.res = capture.getResources();
-        this.factor = factor;
-        this.callback = callback;
-    }
-
-    @Override
-    protected BitmapDrawable doInBackground(Void... params) {
-        Context context = contextWeakRef.get();
-        View capture = captureWeakRef.get();
-        if (context != null && capture != null) {
-            return new BitmapDrawable(res, Blur.rs(capture, factor));
-        }
-
-        return null;
-    }
-
-    @Override
-    protected void onPostExecute(BitmapDrawable bitmapDrawable) {
-        super.onPostExecute(bitmapDrawable);
-        if (callback != null) {
-            callback.done(bitmapDrawable);
-        }
-    }
+  }
 }

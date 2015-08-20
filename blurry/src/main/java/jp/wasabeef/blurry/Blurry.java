@@ -6,7 +6,6 @@ import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-
 import jp.wasabeef.blurry.internal.Blur;
 import jp.wasabeef.blurry.internal.BlurFactor;
 import jp.wasabeef.blurry.internal.BlurTask;
@@ -30,129 +29,124 @@ import jp.wasabeef.blurry.internal.Helper;
 
 public class Blurry {
 
-    private static final String TAG = Blurry.class.getSimpleName();
+  private static final String TAG = Blurry.class.getSimpleName();
 
-    public static Composer with(Context context) {
-        return new Composer(context);
+  public static Composer with(Context context) {
+    return new Composer(context);
+  }
+
+  public static void delete(ViewGroup target) {
+    View view = target.findViewWithTag(TAG);
+    if (view != null) {
+      target.removeView(view);
+    }
+  }
+
+  public static class Composer {
+
+    private View blurredView;
+    private Context context;
+    private BlurFactor factor;
+    private boolean async;
+    private boolean animate;
+    private int duration = 300;
+
+    public Composer(Context context) {
+      this.context = context;
+      blurredView = new View(context);
+      blurredView.setTag(TAG);
+      factor = new BlurFactor();
     }
 
-    public static void delete(ViewGroup target) {
-        View view = target.findViewWithTag(TAG);
-        if (view != null) {
-            target.removeView(view);
-        }
+    public Composer radius(int radius) {
+      factor.radius = radius;
+      return this;
     }
 
-    public static class Composer {
-
-        private View blurredView;
-        private Context context;
-        private BlurFactor factor;
-        private boolean async;
-        private boolean animate;
-        private int duration = 300;
-
-        public Composer(Context context) {
-            this.context = context;
-            blurredView = new View(context);
-            blurredView.setTag(TAG);
-            factor = new BlurFactor();
-        }
-
-        public Composer radius(int radius) {
-            factor.radius = radius;
-            return this;
-        }
-
-        public Composer sampling(int sampling) {
-            factor.sampling = sampling;
-            return this;
-        }
-
-        public Composer color(int color) {
-            factor.color = color;
-            return this;
-        }
-
-        public Composer async() {
-            async = true;
-            return this;
-
-        }
-
-        public Composer animate() {
-            animate = true;
-            return this;
-        }
-
-        public Composer animate(int duration) {
-            animate = true;
-            this.duration = duration;
-            return this;
-        }
-
-        public ImageComposer capture(View capture) {
-            return new ImageComposer(context, capture, factor, async);
-        }
-
-        public void onto(final ViewGroup target) {
-            factor.width = target.getMeasuredWidth();
-            factor.height = target.getMeasuredHeight();
-
-            if (async) {
-                BlurTask.execute(target, factor, new BlurTask.Callback() {
-                    @Override
-                    public void done(BitmapDrawable drawable) {
-                        addView(target, drawable);
-                    }
-                });
-            } else {
-                Drawable drawable =
-                        new BitmapDrawable(context.getResources(), Blur.rs(target, factor));
-                addView(target, drawable);
-            }
-        }
-
-        private void addView(ViewGroup target, Drawable drawable) {
-            Helper.setBackground(blurredView, drawable);
-            target.addView(blurredView);
-
-            if (animate) {
-                Helper.animate(blurredView, duration);
-            }
-        }
+    public Composer sampling(int sampling) {
+      factor.sampling = sampling;
+      return this;
     }
 
-    public static class ImageComposer {
-
-        private Context context;
-        private View capture;
-        private BlurFactor factor;
-        private boolean async;
-
-        public ImageComposer(Context context, View capture, BlurFactor factor, boolean async) {
-            this.context = context;
-            this.capture = capture;
-            this.factor = factor;
-            this.async = async;
-        }
-
-        public void into(final ImageView target) {
-            factor.width = capture.getMeasuredWidth();
-            factor.height = capture.getMeasuredHeight();
-
-            if (async) {
-                BlurTask.execute(capture, factor, new BlurTask.Callback() {
-                    @Override
-                    public void done(BitmapDrawable drawable) {
-                        target.setImageDrawable(drawable);
-                    }
-                });
-            } else {
-                Drawable drawable =
-                        new BitmapDrawable(context.getResources(), Blur.rs(capture, factor));
-                target.setImageDrawable(drawable);
-            }
-        }
+    public Composer color(int color) {
+      factor.color = color;
+      return this;
     }
+
+    public Composer async() {
+      async = true;
+      return this;
+    }
+
+    public Composer animate() {
+      animate = true;
+      return this;
+    }
+
+    public Composer animate(int duration) {
+      animate = true;
+      this.duration = duration;
+      return this;
+    }
+
+    public ImageComposer capture(View capture) {
+      return new ImageComposer(context, capture, factor, async);
+    }
+
+    public void onto(final ViewGroup target) {
+      factor.width = target.getMeasuredWidth();
+      factor.height = target.getMeasuredHeight();
+
+      if (async) {
+        BlurTask.execute(target, factor, new BlurTask.Callback() {
+          @Override public void done(BitmapDrawable drawable) {
+            addView(target, drawable);
+          }
+        });
+      } else {
+        Drawable drawable = new BitmapDrawable(context.getResources(), Blur.rs(target, factor));
+        addView(target, drawable);
+      }
+    }
+
+    private void addView(ViewGroup target, Drawable drawable) {
+      Helper.setBackground(blurredView, drawable);
+      target.addView(blurredView);
+
+      if (animate) {
+        Helper.animate(blurredView, duration);
+      }
+    }
+  }
+
+  public static class ImageComposer {
+
+    private Context context;
+    private View capture;
+    private BlurFactor factor;
+    private boolean async;
+
+    public ImageComposer(Context context, View capture, BlurFactor factor, boolean async) {
+      this.context = context;
+      this.capture = capture;
+      this.factor = factor;
+      this.async = async;
+    }
+
+    public void into(final ImageView target) {
+      factor.width = capture.getMeasuredWidth();
+      factor.height = capture.getMeasuredHeight();
+
+      if (async) {
+        BlurTask.execute(capture, factor, new BlurTask.Callback() {
+          @Override public void done(BitmapDrawable drawable) {
+            target.setImageDrawable(drawable);
+          }
+        });
+      } else {
+        Drawable drawable = new BitmapDrawable(context.getResources(), Blur.rs(capture, factor));
+        target.setImageDrawable(drawable);
+      }
+    }
+  }
 }
