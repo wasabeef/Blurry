@@ -1,5 +1,6 @@
 package jp.wasabeef.blurry.internal;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -30,6 +31,16 @@ import android.view.View;
 public class Blur {
 
   public static Bitmap rs(View view, BlurFactor factor) {
+    view.setDrawingCacheEnabled(true);
+    view.destroyDrawingCache();
+    Bitmap cache = view.getDrawingCache();
+    Bitmap bitmap = rs(view.getContext(), cache, factor);
+    cache.recycle();
+    view.setDrawingCacheEnabled(false);
+    return bitmap;
+  }
+
+  public static Bitmap rs(Context context, Bitmap source, BlurFactor factor) {
     int width = factor.width / factor.sampling;
     int height = factor.height / factor.sampling;
 
@@ -46,14 +57,9 @@ public class Blur {
     PorterDuffColorFilter filter =
         new PorterDuffColorFilter(factor.color, PorterDuff.Mode.SRC_ATOP);
     paint.setColorFilter(filter);
+    canvas.drawBitmap(source, 0, 0, paint);
 
-    view.buildDrawingCache();
-    Bitmap cache = view.getDrawingCache();
-    canvas.drawBitmap(cache, 0, 0, paint);
-    cache.recycle();
-    view.destroyDrawingCache();
-
-    RenderScript rs = RenderScript.create(view.getContext());
+    RenderScript rs = RenderScript.create(context);
     Allocation input = Allocation.createFromBitmap(rs, bitmap, Allocation.MipmapControl.MIPMAP_NONE,
         Allocation.USAGE_SCRIPT);
     Allocation output = Allocation.createTyped(rs, input.getType());

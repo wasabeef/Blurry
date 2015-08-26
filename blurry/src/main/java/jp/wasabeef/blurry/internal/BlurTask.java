@@ -2,6 +2,7 @@ package jp.wasabeef.blurry.internal;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
 import android.view.View;
@@ -31,28 +32,38 @@ public class BlurTask extends AsyncTask<Void, Void, BitmapDrawable> {
   }
 
   private Resources res;
-  private WeakReference<View> captureWeakRef;
+  private WeakReference<View> targetWeakRef;
   private WeakReference<Context> contextWeakRef;
   private BlurFactor factor;
+  private Bitmap capture;
   private Callback callback;
 
-  public static void execute(View capture, BlurFactor factor, Callback callback) {
-    new BlurTask(capture, factor, callback).execute();
+  public static void execute(View target, BlurFactor factor, Callback callback) {
+    new BlurTask(target, factor, callback).execute();
   }
 
-  private BlurTask(View capture, BlurFactor factor, Callback callback) {
-    captureWeakRef = new WeakReference<>(capture);
-    contextWeakRef = new WeakReference<>(capture.getContext());
-    this.res = capture.getResources();
+  private BlurTask(View target, BlurFactor factor, Callback callback) {
+    targetWeakRef = new WeakReference<>(target);
+    contextWeakRef = new WeakReference<>(target.getContext());
+    target.setDrawingCacheEnabled(true);
+    this.res = target.getResources();
     this.factor = factor;
     this.callback = callback;
   }
 
+  @Override protected void onPreExecute() {
+    super.onPreExecute();
+    View target = targetWeakRef.get();
+    if (target != null) {
+      target.destroyDrawingCache();
+      this.capture = target.getDrawingCache();
+    }
+  }
+
   @Override protected BitmapDrawable doInBackground(Void... params) {
     Context context = contextWeakRef.get();
-    View capture = captureWeakRef.get();
-    if (context != null && capture != null) {
-      return new BitmapDrawable(res, Blur.rs(capture, factor));
+    if (context != null) {
+      return new BitmapDrawable(res, Blur.rs(context, capture, factor));
     }
 
     return null;

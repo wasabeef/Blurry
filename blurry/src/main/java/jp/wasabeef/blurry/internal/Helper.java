@@ -1,5 +1,6 @@
 package jp.wasabeef.blurry.internal;
 
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.view.View;
