@@ -1,6 +1,13 @@
 Change Log
 ==========
 
+
+Version 1.0.1 *(2015-08-26)*
+----------------------------
+
+fix bug.
+https://github.com/wasabeef/Blurry/issues/5
+
 Version 1.0.0 *(2015-07-28)*
 ----------------------------
 
