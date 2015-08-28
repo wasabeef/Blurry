@@ -33,6 +33,7 @@ public class Blur {
   public static Bitmap rs(View view, BlurFactor factor) {
     view.setDrawingCacheEnabled(true);
     view.destroyDrawingCache();
+    view.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_LOW);
     Bitmap cache = view.getDrawingCache();
     Bitmap bitmap = rs(view.getContext(), cache, factor);
     cache.recycle();
