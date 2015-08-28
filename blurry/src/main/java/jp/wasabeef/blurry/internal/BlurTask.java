@@ -4,9 +4,12 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
-import android.os.AsyncTask;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 import java.lang.ref.WeakReference;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Copyright (C) 2015 Wasabeef
@@ -24,7 +27,7 @@ import java.lang.ref.WeakReference;
  * limitations under the License.
  */
 
-public class BlurTask extends AsyncTask<Void, Void, BitmapDrawable> {
+public class BlurTask {
 
   public interface Callback {
 
@@ -32,47 +35,46 @@ public class BlurTask extends AsyncTask<Void, Void, BitmapDrawable> {
   }
 
   private Resources res;
-  private WeakReference<View> targetWeakRef;
   private WeakReference<Context> contextWeakRef;
   private BlurFactor factor;
   private Bitmap capture;
   private Callback callback;
+  private static ExecutorService THREAD_POOL;
 
-  public static void execute(View target, BlurFactor factor, Callback callback) {
-    new BlurTask(target, factor, callback).execute();
+  static {
+    THREAD_POOL =
+        Executors.newFixedThreadPool(Math.max(1, Runtime.getRuntime().availableProcessors()));
   }
 
-  private BlurTask(View target, BlurFactor factor, Callback callback) {
-    targetWeakRef = new WeakReference<>(target);
-    contextWeakRef = new WeakReference<>(target.getContext());
+  public BlurTask(View target, BlurFactor factor, Callback callback) {
     target.setDrawingCacheEnabled(true);
     this.res = target.getResources();
     this.factor = factor;
     this.callback = callback;
+
+    target.destroyDrawingCache();
+    target.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_LOW);
+    capture = target.getDrawingCache();
+    contextWeakRef = new WeakReference<>(target.getContext());
   }
 
-  @Override protected void onPreExecute() {
-    super.onPreExecute();
-    View target = targetWeakRef.get();
-    if (target != null) {
-      target.destroyDrawingCache();
-      this.capture = target.getDrawingCache();
-    }
+  public void execute() {
+    THREAD_POOL.execute(new Worker());
   }
 
-  @Override protected BitmapDrawable doInBackground(Void... params) {
-    Context context = contextWeakRef.get();
-    if (context != null) {
-      return new BitmapDrawable(res, Blur.rs(context, capture, factor));
-    }
+  private class Worker implements Runnable {
+    @Override public void run() {
+      Context context = contextWeakRef.get();
+      final BitmapDrawable bitmapDrawable =
+          new BitmapDrawable(res, Blur.rs(context, capture, factor));
 
-    return null;
-  }
-
-  @Override protected void onPostExecute(BitmapDrawable bitmapDrawable) {
-    super.onPostExecute(bitmapDrawable);
-    if (callback != null) {
-      callback.done(bitmapDrawable);
+      if (callback != null) {
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+          @Override public void run() {
+            callback.done(bitmapDrawable);
+          }
+        });
+      }
     }
   }
 }

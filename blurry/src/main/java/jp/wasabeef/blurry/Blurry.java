@@ -98,11 +98,12 @@ public class Blurry {
       factor.height = target.getMeasuredHeight();
 
       if (async) {
-        BlurTask.execute(target, factor, new BlurTask.Callback() {
+        BlurTask task = new BlurTask(target, factor, new BlurTask.Callback() {
           @Override public void done(BitmapDrawable drawable) {
             addView(target, drawable);
           }
         });
+        task.execute();
       } else {
         Drawable drawable = new BitmapDrawable(context.getResources(), Blur.rs(target, factor));
         addView(target, drawable);
@@ -138,11 +139,12 @@ public class Blurry {
       factor.height = capture.getMeasuredHeight();
 
       if (async) {
-        BlurTask.execute(capture, factor, new BlurTask.Callback() {
+        BlurTask task = new BlurTask(capture, factor, new BlurTask.Callback() {
           @Override public void done(BitmapDrawable drawable) {
             target.setImageDrawable(drawable);
           }
         });
+        task.execute();
       } else {
         Drawable drawable = new BitmapDrawable(context.getResources(), Blur.rs(capture, factor));
         target.setImageDrawable(drawable);
