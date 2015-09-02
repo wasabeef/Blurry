@@ -39,12 +39,7 @@ public class BlurTask {
   private BlurFactor factor;
   private Bitmap capture;
   private Callback callback;
-  private static ExecutorService THREAD_POOL;
-
-  static {
-    THREAD_POOL =
-        Executors.newFixedThreadPool(Math.max(1, Runtime.getRuntime().availableProcessors()));
-  }
+  private static ExecutorService THREAD_POOL = Executors.newCachedThreadPool();
 
   public BlurTask(View target, BlurFactor factor, Callback callback) {
     target.setDrawingCacheEnabled(true);
