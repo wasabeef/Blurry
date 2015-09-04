@@ -1,6 +1,11 @@
 Change Log
 ==========
 
+Version 1.0.3 *(2015-09-04)*
+----------------------------
+
+fix [#2](https://github.com/wasabeef/Blurry/issues/5) renderscript in build-tools.
+
 Version 1.0.2 *(2015-09-02)*
 ----------------------------
 
@@ -9,8 +14,8 @@ Replace AsyncTask.
 Version 1.0.1 *(2015-08-26)*
 ----------------------------
 
-fix bug.
-https://github.com/wasabeef/Blurry/issues/5
+fix [#5](https://github.com/wasabeef/Blurry/issues/5) throws RuntimeException.
+
 
 Version 1.0.0 *(2015-07-28)*
 ----------------------------
