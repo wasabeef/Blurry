@@ -54,22 +54,20 @@ public class BlurTask {
   }
 
   public void execute() {
-    THREAD_POOL.execute(new Worker());
-  }
+    THREAD_POOL.execute(new Runnable() {
+      @Override public void run() {
+        Context context = contextWeakRef.get();
+        final BitmapDrawable bitmapDrawable =
+            new BitmapDrawable(res, Blur.rs(context, capture, factor));
 
-  private class Worker implements Runnable {
-    @Override public void run() {
-      Context context = contextWeakRef.get();
-      final BitmapDrawable bitmapDrawable =
-          new BitmapDrawable(res, Blur.rs(context, capture, factor));
-
-      if (callback != null) {
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-          @Override public void run() {
-            callback.done(bitmapDrawable);
-          }
-        });
+        if (callback != null) {
+          new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override public void run() {
+              callback.done(bitmapDrawable);
+            }
+          });
+        }
       }
-    }
+    });
   }
 }
