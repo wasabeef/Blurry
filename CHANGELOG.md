@@ -4,8 +4,8 @@ Change Log
 Version 1.0.5 *(2015-11-27)*
 ----------------------------
 
-Change the renderscriptTargetApi down to 20.
- Warning:Renderscript support mode is not currently supported with renderscript target 21+
+Change the renderscriptTargetApi down to 20.  
+ Warning:Renderscript support mode is not currently supported with renderscript target 21+  
 
 Version 1.0.4 *(2015-09-07)*
 ----------------------------
