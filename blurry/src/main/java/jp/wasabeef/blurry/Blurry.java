@@ -50,6 +50,7 @@ public class Blurry {
     private boolean async;
     private boolean animate;
     private int duration = 300;
+    private ImageComposer.ImageComposerListener listener;
 
     public Composer(Context context) {
       this.context = context;
@@ -77,7 +78,13 @@ public class Blurry {
       async = true;
       return this;
     }
-
+    
+    public Composer async(ImageComposer.ImageComposerListener listener) {
+      async = true;
+      this.listener = listener;
+      return this;
+    }
+    
     public Composer animate() {
       animate = true;
       return this;
@@ -90,7 +97,7 @@ public class Blurry {
     }
 
     public ImageComposer capture(View capture) {
-      return new ImageComposer(context, capture, factor, async);
+      return new ImageComposer(context, capture, factor, async, listener);
     }
 
     public void onto(final ViewGroup target) {
@@ -126,12 +133,14 @@ public class Blurry {
     private View capture;
     private BlurFactor factor;
     private boolean async;
+    private ImageComposerListener listener;
 
-    public ImageComposer(Context context, View capture, BlurFactor factor, boolean async) {
+    public ImageComposer(Context context, View capture, BlurFactor factor, boolean async, ImageComposerListener listener) {
       this.context = context;
       this.capture = capture;
       this.factor = factor;
       this.async = async;
+      this.listener = listener;
     }
 
     public void into(final ImageView target) {
@@ -141,7 +150,11 @@ public class Blurry {
       if (async) {
         BlurTask task = new BlurTask(capture, factor, new BlurTask.Callback() {
           @Override public void done(BitmapDrawable drawable) {
-            target.setImageDrawable(drawable);
+             if (listener == null) {
+              target.setImageDrawable(drawable);
+            } else {
+              listener.onImageReady(drawable);
+            }
           }
         });
         task.execute();
@@ -149,6 +162,10 @@ public class Blurry {
         Drawable drawable = new BitmapDrawable(context.getResources(), Blur.rs(capture, factor));
         target.setImageDrawable(drawable);
       }
+    }
+    
+    public interface ImageComposerListener {
+      void onImageReady(BitmapDrawable drawable);
     }
   }
 }
