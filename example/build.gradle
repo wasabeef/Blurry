@@ -23,6 +23,7 @@ android {
 }
 
 dependencies {
-    compile project(':blurry')
+//    compile project(':blurry')
+    compile 'jp.wasabeef:blurry:1.1.0'
     compile "com.android.support:appcompat-v7:${SUPPORT_PACKAGE_VERSION}"
 }

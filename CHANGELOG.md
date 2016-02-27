@@ -1,6 +1,13 @@
 Change Log
 ==========
 
+Version 1.1.0 *(2016-02-28)*
+----------------------------
+
+PR: [Use FastBlur as a fallback upon RenderScript failure.](https://github.com/wasabeef/Blurry/pull/21)
+   fix Issue [#16](https://github.com/wasabeef/Blurry/issues/16)
+PR: [Added optional listener.](https://github.com/wasabeef/Blurry/pull/18)
+
 Version 1.0.5 *(2015-11-27)*
 ----------------------------
 
