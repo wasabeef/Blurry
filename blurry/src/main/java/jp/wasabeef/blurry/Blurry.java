@@ -78,13 +78,13 @@ public class Blurry {
       async = true;
       return this;
     }
-    
+
     public Composer async(ImageComposer.ImageComposerListener listener) {
       async = true;
       this.listener = listener;
       return this;
     }
-    
+
     public Composer animate() {
       animate = true;
       return this;
@@ -135,7 +135,8 @@ public class Blurry {
     private boolean async;
     private ImageComposerListener listener;
 
-    public ImageComposer(Context context, View capture, BlurFactor factor, boolean async, ImageComposerListener listener) {
+    public ImageComposer(Context context, View capture, BlurFactor factor, boolean async,
+        ImageComposerListener listener) {
       this.context = context;
       this.capture = capture;
       this.factor = factor;
@@ -150,7 +151,7 @@ public class Blurry {
       if (async) {
         BlurTask task = new BlurTask(capture, factor, new BlurTask.Callback() {
           @Override public void done(BitmapDrawable drawable) {
-             if (listener == null) {
+            if (listener == null) {
               target.setImageDrawable(drawable);
             } else {
               listener.onImageReady(drawable);
@@ -163,7 +164,7 @@ public class Blurry {
         target.setImageDrawable(drawable);
       }
     }
-    
+
     public interface ImageComposerListener {
       void onImageReady(BitmapDrawable drawable);
     }
