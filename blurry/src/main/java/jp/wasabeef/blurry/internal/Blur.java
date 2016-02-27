@@ -8,6 +8,7 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.support.v8.renderscript.Allocation;
 import android.support.v8.renderscript.Element;
+import android.support.v8.renderscript.RSRuntimeException;
 import android.support.v8.renderscript.RenderScript;
 import android.support.v8.renderscript.ScriptIntrinsicBlur;
 import android.view.View;
@@ -59,18 +60,25 @@ public class Blur {
     paint.setColorFilter(filter);
     canvas.drawBitmap(source, 0, 0, paint);
 
-    RenderScript rs = RenderScript.create(context);
-    Allocation input = Allocation.createFromBitmap(rs, bitmap, Allocation.MipmapControl.MIPMAP_NONE,
-        Allocation.USAGE_SCRIPT);
-    Allocation output = Allocation.createTyped(rs, input.getType());
-    ScriptIntrinsicBlur blur = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs));
+    RenderScript rs = null;
+    try {
+      rs = RenderScript.create(context);
+      Allocation input = Allocation.createFromBitmap(rs, bitmap, Allocation.MipmapControl.MIPMAP_NONE,
+              Allocation.USAGE_SCRIPT);
+      Allocation output = Allocation.createTyped(rs, input.getType());
+      ScriptIntrinsicBlur blur = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs));
 
-    blur.setInput(input);
-    blur.setRadius(factor.radius);
-    blur.forEach(output);
-    output.copyTo(bitmap);
-
-    rs.destroy();
+      blur.setInput(input);
+      blur.setRadius(factor.radius);
+      blur.forEach(output);
+      output.copyTo(bitmap);
+    } catch (RSRuntimeException e) {
+      bitmap = FastBlur.doBlur(bitmap, factor.radius, true);
+    } finally {
+      if (rs != null) {
+        rs.destroy();
+      }
+    }
 
     if (factor.sampling == BlurFactor.DEFAULT_SAMPLING) {
       return bitmap;
