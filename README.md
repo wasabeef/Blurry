@@ -19,18 +19,7 @@ How do I use it?
 ##### Dependencies
 ```groovy
 dependencies {
-    compile 'jp.wasabeef:blurry:1.1.0'
-}
-```
-
-##### Enable Renderscript
-```groovy
-android {
-    defaultConfig {
-        // Warning:Renderscript support mode is not currently supported with renderscript target 21+
-        renderscriptTargetApi 20
-        renderscriptSupportModeEnabled true
-    }
+    compile 'jp.wasabeef:blurry:2.0.0'
 }
 ```
 
