@@ -58,7 +58,7 @@ public class BlurTask {
       @Override public void run() {
         Context context = contextWeakRef.get();
         final BitmapDrawable bitmapDrawable =
-            new BitmapDrawable(res, Blur.rs(context, capture, factor));
+            new BitmapDrawable(res, Blur.of(context, capture, factor));
 
         if (callback != null) {
           new Handler(Looper.getMainLooper()).post(new Runnable() {

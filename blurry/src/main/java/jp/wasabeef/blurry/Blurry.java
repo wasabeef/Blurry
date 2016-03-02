@@ -112,7 +112,7 @@ public class Blurry {
         });
         task.execute();
       } else {
-        Drawable drawable = new BitmapDrawable(context.getResources(), Blur.rs(target, factor));
+        Drawable drawable = new BitmapDrawable(context.getResources(), Blur.of(target, factor));
         addView(target, drawable);
       }
     }
@@ -160,7 +160,7 @@ public class Blurry {
         });
         task.execute();
       } else {
-        Drawable drawable = new BitmapDrawable(context.getResources(), Blur.rs(capture, factor));
+        Drawable drawable = new BitmapDrawable(context.getResources(), Blur.of(capture, factor));
         target.setImageDrawable(drawable);
       }
     }
