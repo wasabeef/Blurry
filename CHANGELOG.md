@@ -1,6 +1,11 @@
 Change Log
 ==========
 
+Version 2.0.2 *(2016-04-21)*
+----------------------------
+
+Fix [Fatal Signal #35](https://github.com/wasabeef/glide-transformations/issues/35)
+
 Version 2.0.1 *(2016-04-21)*
 ----------------------------
 
