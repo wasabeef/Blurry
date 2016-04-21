@@ -36,10 +36,10 @@ artifacts {
 }
 
 publish {
-    userOrg = POM_DEVELOPER_ID
-    groupId = GROUP
-    artifactId = ARTIFACT_ID
-    publishVersion = VERSION_NAME
-    desc = POM_DESCRIPTION
-    website = POM_URL
+  userOrg = POM_DEVELOPER_ID
+  groupId = GROUP
+  artifactId = ARTIFACT_ID
+  publishVersion = VERSION_NAME
+  desc = POM_DESCRIPTION
+  website = POM_URL
 }

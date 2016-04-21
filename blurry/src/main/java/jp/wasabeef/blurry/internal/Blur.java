@@ -86,6 +86,7 @@ public class Blur {
     RenderScript rs = null;
     try {
       rs = RenderScript.create(context);
+      rs.setMessageHandler(new RenderScript.RSMessageHandler());
       Allocation input =
           Allocation.createFromBitmap(rs, bitmap, Allocation.MipmapControl.MIPMAP_NONE,
               Allocation.USAGE_SCRIPT);
