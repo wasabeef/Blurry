@@ -62,7 +62,7 @@ public class Blur {
     paint.setColorFilter(filter);
     canvas.drawBitmap(source, 0, 0, paint);
 
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
       try {
         bitmap = Blur.rs(context, bitmap, factor.radius);
       } catch (RSRuntimeException e) {
@@ -81,7 +81,7 @@ public class Blur {
     }
   }
 
-  @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
+  @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
   public static Bitmap rs(Context context, Bitmap bitmap, int radius) throws RSRuntimeException {
     RenderScript rs = null;
     try {
