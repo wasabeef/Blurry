@@ -19,7 +19,7 @@ How do I use it?
 ##### Dependencies
 ```groovy
 dependencies {
-    compile 'jp.wasabeef:blurry:2.0.0'
+    compile 'jp.wasabeef:blurry:2.0.1'
 }
 ```
 
@@ -58,7 +58,7 @@ Blurry.with(context)
 
 Requirements
 --------------
-Android 2.3+
+Android 3.+
 
 Developed By
 -------
