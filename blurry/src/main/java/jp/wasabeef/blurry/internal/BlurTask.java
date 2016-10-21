@@ -43,23 +43,24 @@ public class BlurTask {
     private static ExecutorService THREAD_POOL = Executors.newCachedThreadPool();
 
     public BlurTask(View target, BlurFactor factor, Callback callback) {
-        target.setDrawingCacheEnabled(true);
         this.res = target.getResources();
         this.factor = factor;
         this.callback = callback;
+        this.contextWeakRef = new WeakReference<>(target.getContext());
 
+        target.setDrawingCacheEnabled(true);
         target.destroyDrawingCache();
         target.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_LOW);
         capture = target.getDrawingCache();
-        contextWeakRef = new WeakReference<>(target.getContext());
     }
 
     public BlurTask(Context context, Bitmap bitmap, BlurFactor factor, Callback callback) {
         this.res = context.getResources();
         this.factor = factor;
         this.callback = callback;
+        this.contextWeakRef = new WeakReference<>(context);
+
         capture = bitmap;
-        contextWeakRef = new WeakReference<>(context);
     }
 
     public void execute() {
