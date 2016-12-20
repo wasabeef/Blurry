@@ -19,7 +19,7 @@ How do I use it?
 ##### Dependencies
 ```groovy
 dependencies {
-    compile 'jp.wasabeef:blurry:2.0.3'
+    compile 'jp.wasabeef:blurry:2.1.0'
 }
 ```
 
@@ -33,9 +33,15 @@ Parent must be ViewGroup
 Blurry.with(context).radius(25).sampling(2).onto((ViewGroup) rootView);
 ```
 
-**Into**
+**Into**  
 ```java
+// from View
 Blurry.with(context).capture(view).into(imageView);
+```
+
+```java
+// from Bitmap 
+Blurry.with(context).from(bitmap).into(imageView);
 ```
 
 **Blur Options**

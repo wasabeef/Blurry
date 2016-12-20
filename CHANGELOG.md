@@ -1,6 +1,18 @@
 Change Log
 ==========
 
+Version 2.1.0 *(2016-12-20)*
+----------------------------
+
+Update:
+- Build Tools 24.0.2 -> 25.0.2
+- Support Library 23.4.0 -> 24.2.0
+
+PR:
+- [#44](https://github.com/wasabeef/Blurry/pull/44) Implement BitmapComposer
+
+
+
 Version 2.0.3 *(2016-08-04)*
 ----------------------------
 
