@@ -7,7 +7,7 @@ import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-
+import jp.wasabeef.blurry.Blurry.ImageComposer.ImageComposerListener;
 import jp.wasabeef.blurry.internal.Blur;
 import jp.wasabeef.blurry.internal.BlurFactor;
 import jp.wasabeef.blurry.internal.BlurTask;
@@ -52,7 +52,7 @@ public class Blurry {
     private boolean async;
     private boolean animate;
     private int duration = 300;
-    private ImageComposer.ImageComposerListener listener;
+    private ImageComposerListener listener;
 
     public Composer(Context context) {
       this.context = context;
@@ -81,7 +81,7 @@ public class Blurry {
       return this;
     }
 
-    public Composer async(ImageComposer.ImageComposerListener listener) {
+    public Composer async(ImageComposerListener listener) {
       async = true;
       this.listener = listener;
       return this;
@@ -102,7 +102,7 @@ public class Blurry {
       return new ImageComposer(context, capture, factor, async, listener);
     }
 
-    public BitmapComposer fromBitmap(Bitmap bitmap) {
+    public BitmapComposer from(Bitmap bitmap) {
       return new BitmapComposer(context, bitmap, factor, async, listener);
     }
 
@@ -139,9 +139,10 @@ public class Blurry {
     private Bitmap bitmap;
     private BlurFactor factor;
     private boolean async;
-    private ImageComposer.ImageComposerListener listener;
+    private ImageComposerListener listener;
 
-    public BitmapComposer(Context context, Bitmap bitmap, BlurFactor factor, boolean async, ImageComposer.ImageComposerListener listener) {
+    public BitmapComposer(Context context, Bitmap bitmap, BlurFactor factor, boolean async,
+        ImageComposerListener listener) {
       this.context = context;
       this.bitmap = bitmap;
       this.factor = factor;
@@ -165,11 +166,11 @@ public class Blurry {
         });
         task.execute();
       } else {
-        Drawable drawable = new BitmapDrawable(context.getResources(), Blur.of(target.getContext(), bitmap, factor));
+        Drawable drawable = new BitmapDrawable(context.getResources(),
+            Blur.of(target.getContext(), bitmap, factor));
         target.setImageDrawable(drawable);
       }
     }
-
   }
 
   public static class ImageComposer {
