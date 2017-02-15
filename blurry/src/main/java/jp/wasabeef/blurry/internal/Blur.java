@@ -84,14 +84,16 @@ public class Blur {
   @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
   public static Bitmap rs(Context context, Bitmap bitmap, int radius) throws RSRuntimeException {
     RenderScript rs = null;
+    Allocation input = null;
+    Allocation output = null;
+    ScriptIntrinsicBlur blur = null;
     try {
       rs = RenderScript.create(context);
       rs.setMessageHandler(new RenderScript.RSMessageHandler());
-      Allocation input =
-          Allocation.createFromBitmap(rs, bitmap, Allocation.MipmapControl.MIPMAP_NONE,
+      input = Allocation.createFromBitmap(rs, bitmap, Allocation.MipmapControl.MIPMAP_NONE,
               Allocation.USAGE_SCRIPT);
-      Allocation output = Allocation.createTyped(rs, input.getType());
-      ScriptIntrinsicBlur blur = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs));
+      output = Allocation.createTyped(rs, input.getType());
+      blur = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs));
 
       blur.setInput(input);
       blur.setRadius(radius);
@@ -100,6 +102,15 @@ public class Blur {
     } finally {
       if (rs != null) {
         rs.destroy();
+      }
+      if (input != null) {
+        input.destroy();
+      }
+      if (output != null) {
+        output.destroy();
+      }
+      if (blur != null) {
+        blur.destroy();
       }
     }
 
