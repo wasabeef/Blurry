@@ -1,6 +1,16 @@
 Change Log
 ==========
 
+Version 2.1.1 *(2017-03-21)*
+----------------------------
+
+Update:
+- Support Library 24.2.0 -> 25.3.0
+
+Bug Fix:
+- [Destroy Allocation and ScriptInstrinsicBlur objects to prevent memory leaks #51](https://github.com/wasabeef/Blurry/pull/51)
+ 
+
 Version 2.1.0 *(2016-12-20)*
 ----------------------------
 
@@ -10,7 +20,6 @@ Update:
 
 PR:
 - [#44](https://github.com/wasabeef/Blurry/pull/44) Implement BitmapComposer
-
 
 
 Version 2.0.3 *(2016-08-04)*

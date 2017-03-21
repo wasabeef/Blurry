@@ -19,7 +19,7 @@ How do I use it?
 ##### Dependencies
 ```groovy
 dependencies {
-    compile 'jp.wasabeef:blurry:2.1.0'
+    compile 'jp.wasabeef:blurry:2.1.1'
 }
 ```
 
