@@ -99,6 +99,10 @@ public class Blur {
       blur.setRadius(radius);
       blur.forEach(output);
       output.copyTo(bitmap);
+
+      input.destroy();
+      output.destroy();
+      blur.destroy();
     } finally {
       if (rs != null) {
         rs.destroy();
