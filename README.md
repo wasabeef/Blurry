@@ -19,7 +19,7 @@ How do I use it?
 ##### Dependencies
 ```groovy
 dependencies {
-    compile 'jp.wasabeef:blurry:2.1.0'
+    compile 'jp.wasabeef:blurry:2.1.1'
 }
 ```
 
@@ -78,7 +78,7 @@ src="https://raw.githubusercontent.com/wasabeef/art/master/twitter.png" width="7
 License
 -------
 
-    Copyright 2015 Wasabeef
+    Copyright 2017 Wasabeef
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.

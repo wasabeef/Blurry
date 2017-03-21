@@ -16,7 +16,7 @@ import android.renderscript.ScriptIntrinsicBlur;
 import android.view.View;
 
 /**
- * Copyright (C) 2015 Wasabeef
+ * Copyright (C) 2017 Wasabeef
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -82,7 +82,7 @@ public class Blur {
   }
 
   @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
-  public static Bitmap rs(Context context, Bitmap bitmap, int radius) throws RSRuntimeException {
+  private static Bitmap rs(Context context, Bitmap bitmap, int radius) throws RSRuntimeException {
     RenderScript rs = null;
     Allocation input = null;
     Allocation output = null;
@@ -91,7 +91,7 @@ public class Blur {
       rs = RenderScript.create(context);
       rs.setMessageHandler(new RenderScript.RSMessageHandler());
       input = Allocation.createFromBitmap(rs, bitmap, Allocation.MipmapControl.MIPMAP_NONE,
-              Allocation.USAGE_SCRIPT);
+          Allocation.USAGE_SCRIPT);
       output = Allocation.createTyped(rs, input.getType());
       blur = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs));
 
@@ -117,7 +117,7 @@ public class Blur {
     return bitmap;
   }
 
-  public static Bitmap stack(Bitmap sentBitmap, int radius, boolean canReuseInBitmap) {
+  private static Bitmap stack(Bitmap sentBitmap, int radius, boolean canReuseInBitmap) {
 
     // Stack Blur v1.0 from
     // http://www.quasimondo.com/StackBlurForCanvas/StackBlurDemo.html
