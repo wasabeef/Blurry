@@ -114,7 +114,9 @@ public class Blurry {
         BlurTask task = new BlurTask(target, factor, new BlurTask.Callback() {
           @Override public void done(BitmapDrawable drawable) {
             addView(target, drawable);
-            listener.onImageReady(drawable);
+            if (listener != null) {
+              listener.onImageReady(drawable);
+            }
           }
         });
         task.execute();
