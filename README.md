@@ -19,7 +19,7 @@ How do I use it?
 ##### Dependencies
 ```groovy
 dependencies {
-    compile 'jp.wasabeef:blurry:2.1.1'
+    compile 'jp.wasabeef:blurry:3.x.x'
 }
 ```
 
@@ -29,19 +29,19 @@ dependencies {
 
 Parent must be ViewGroup
 
-```java
-Blurry.with(context).radius(25).sampling(2).onto((ViewGroup) rootView);
+```kotlin
+Blurry.with(context).radius(25).sampling(2).onto(rootView)
 ```
 
 **Into**  
-```java
+```kotlin
 // from View
-Blurry.with(context).capture(view).into(imageView);
+Blurry.with(context).capture(view).into(imageView)
 ```
 
-```java
+```kotlin
 // from Bitmap 
-Blurry.with(context).from(bitmap).into(imageView);
+Blurry.with(context).from(bitmap).into(imageView)
 ```
 
 **Blur Options**
@@ -64,7 +64,7 @@ Blurry.with(context)
 
 Requirements
 --------------
-Android 3.+
+Android 3.+ (API 14)
 
 Developed By
 -------
@@ -78,7 +78,7 @@ src="https://raw.githubusercontent.com/wasabeef/art/master/twitter.png" width="7
 License
 -------
 
-    Copyright 2017 Wasabeef
+    Copyright 2018 Wasabeef
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
