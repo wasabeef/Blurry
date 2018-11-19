@@ -29,19 +29,19 @@ dependencies {
 
 Parent must be ViewGroup
 
-```java
-Blurry.with(context).radius(25).sampling(2).onto((ViewGroup) rootView);
+```kotlin
+Blurry.with(context).radius(25).sampling(2).onto(rootView)
 ```
 
 **Into**  
-```java
+```kotlin
 // from View
-Blurry.with(context).capture(view).into(imageView);
+Blurry.with(context).capture(view).into(imageView)
 ```
 
-```java
+```kotlin
 // from Bitmap 
-Blurry.with(context).from(bitmap).into(imageView);
+Blurry.with(context).from(bitmap).into(imageView)
 ```
 
 **Blur Options**
