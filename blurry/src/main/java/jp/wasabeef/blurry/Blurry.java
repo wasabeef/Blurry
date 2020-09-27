@@ -7,6 +7,7 @@ import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+
 import jp.wasabeef.blurry.Blurry.ImageComposer.ImageComposerListener;
 import jp.wasabeef.blurry.internal.Blur;
 import jp.wasabeef.blurry.internal.BlurFactor;
@@ -15,13 +16,13 @@ import jp.wasabeef.blurry.internal.Helper;
 
 /**
  * Copyright (C) 2018 Wasabeef
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -46,9 +47,9 @@ public class Blurry {
 
   public static class Composer {
 
-    private View blurredView;
-    private Context context;
-    private BlurFactor factor;
+    private final View blurredView;
+    private final Context context;
+    private final BlurFactor factor;
     private boolean async;
     private boolean animate;
     private int duration = 300;
@@ -112,7 +113,8 @@ public class Blurry {
 
       if (async) {
         BlurTask task = new BlurTask(target, factor, new BlurTask.Callback() {
-          @Override public void done(BitmapDrawable drawable) {
+          @Override
+          public void done(BitmapDrawable drawable) {
             addView(target, drawable);
             if (listener != null) {
               listener.onImageReady(drawable);
@@ -138,14 +140,14 @@ public class Blurry {
 
   public static class BitmapComposer {
 
-    private Context context;
-    private Bitmap bitmap;
-    private BlurFactor factor;
-    private boolean async;
-    private ImageComposerListener listener;
+    private final Context context;
+    private final Bitmap bitmap;
+    private final BlurFactor factor;
+    private final boolean async;
+    private final ImageComposerListener listener;
 
     public BitmapComposer(Context context, Bitmap bitmap, BlurFactor factor, boolean async,
-        ImageComposerListener listener) {
+                          ImageComposerListener listener) {
       this.context = context;
       this.bitmap = bitmap;
       this.factor = factor;
@@ -159,7 +161,8 @@ public class Blurry {
 
       if (async) {
         BlurTask task = new BlurTask(target.getContext(), bitmap, factor, new BlurTask.Callback() {
-          @Override public void done(BitmapDrawable drawable) {
+          @Override
+          public void done(BitmapDrawable drawable) {
             if (listener == null) {
               target.setImageDrawable(drawable);
             } else {
@@ -170,7 +173,7 @@ public class Blurry {
         task.execute();
       } else {
         Drawable drawable = new BitmapDrawable(context.getResources(),
-            Blur.of(target.getContext(), bitmap, factor));
+          Blur.of(target.getContext(), bitmap, factor));
         target.setImageDrawable(drawable);
       }
     }
@@ -178,14 +181,14 @@ public class Blurry {
 
   public static class ImageComposer {
 
-    private Context context;
-    private View capture;
-    private BlurFactor factor;
-    private boolean async;
-    private ImageComposerListener listener;
+    private final Context context;
+    private final View capture;
+    private final BlurFactor factor;
+    private final boolean async;
+    private final ImageComposerListener listener;
 
     public ImageComposer(Context context, View capture, BlurFactor factor, boolean async,
-        ImageComposerListener listener) {
+                         ImageComposerListener listener) {
       this.context = context;
       this.capture = capture;
       this.factor = factor;
@@ -199,7 +202,8 @@ public class Blurry {
 
       if (async) {
         BlurTask task = new BlurTask(capture, factor, new BlurTask.Callback() {
-          @Override public void done(BitmapDrawable drawable) {
+          @Override
+          public void done(BitmapDrawable drawable) {
             if (listener == null) {
               target.setImageDrawable(drawable);
             } else {

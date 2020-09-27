@@ -17,30 +17,30 @@ class MainActivity : AppCompatActivity() {
     findViewById<View>(R.id.button).setOnClickListener {
       val startMs = System.currentTimeMillis()
       Blurry.with(this)
-          .radius(25)
-          .sampling(1)
-          .color(Color.argb(66, 0, 255, 255))
-          .async()
-          .capture(findViewById(R.id.right_top))
-          .into(findViewById(R.id.right_top))
+        .radius(25)
+        .sampling(1)
+        .color(Color.argb(66, 0, 255, 255))
+        .async()
+        .capture(findViewById(R.id.right_top))
+        .into(findViewById(R.id.right_top))
 
       Blurry.with(this)
-          .radius(10)
-          .sampling(8)
-          .async()
-          .capture(findViewById(R.id.right_bottom))
-          .into(findViewById(R.id.right_bottom))
+        .radius(10)
+        .sampling(8)
+        .async()
+        .capture(findViewById(R.id.right_bottom))
+        .into(findViewById(R.id.right_bottom))
 
       Blurry.with(this)
-          .radius(25)
-          .sampling(1)
-          .color(Color.argb(66, 255, 255, 0))
-          .async()
-          .capture(findViewById(R.id.left_bottom))
-          .into(findViewById(R.id.left_bottom))
+        .radius(25)
+        .sampling(1)
+        .color(Color.argb(66, 255, 255, 0))
+        .async()
+        .capture(findViewById(R.id.left_bottom))
+        .into(findViewById(R.id.left_bottom))
 
       Log.d(getString(R.string.app_name),
-          "TIME " + (System.currentTimeMillis() - startMs).toString() + "ms")
+        "TIME " + (System.currentTimeMillis() - startMs).toString() + "ms")
     }
 
     findViewById<View>(R.id.button).setOnLongClickListener(object : View.OnLongClickListener {
@@ -53,13 +53,13 @@ class MainActivity : AppCompatActivity() {
         } else {
           val startMs = System.currentTimeMillis()
           Blurry.with(this@MainActivity)
-              .radius(25)
-              .sampling(2)
-              .async()
-              .animate(500)
-              .onto(findViewById<View>(R.id.content) as ViewGroup)
+            .radius(25)
+            .sampling(2)
+            .async()
+            .animate(500)
+            .onto(findViewById<View>(R.id.content) as ViewGroup)
           Log.d(getString(R.string.app_name),
-              "TIME " + (System.currentTimeMillis() - startMs).toString() + "ms")
+            "TIME " + (System.currentTimeMillis() - startMs).toString() + "ms")
         }
 
         blurred = !blurred
