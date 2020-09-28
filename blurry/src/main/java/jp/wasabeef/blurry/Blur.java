@@ -6,6 +6,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
+import android.os.Build;
 import android.renderscript.Allocation;
 import android.renderscript.Element;
 import android.renderscript.RSRuntimeException;
@@ -94,7 +95,11 @@ class Blur {
       output.copyTo(bitmap);
     } finally {
       if (rs != null) {
-        rs.destroy();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+          RenderScript.releaseAllContexts();
+        } else {
+          rs.destroy();
+        }
       }
       if (input != null) {
         input.destroy();
