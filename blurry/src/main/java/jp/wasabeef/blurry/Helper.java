@@ -1,7 +1,5 @@
-package jp.wasabeef.blurry.internal;
+package jp.wasabeef.blurry;
 
-import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
 
@@ -21,15 +19,7 @@ import android.view.animation.AlphaAnimation;
  * limitations under the License.
  */
 
-public final class Helper {
-
-  public static void setBackground(View v, Drawable drawable) {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-      v.setBackground(drawable);
-    } else {
-      v.setBackgroundDrawable(drawable);
-    }
-  }
+final class Helper {
 
   public static boolean hasZero(int... args) {
     for (int num : args) {

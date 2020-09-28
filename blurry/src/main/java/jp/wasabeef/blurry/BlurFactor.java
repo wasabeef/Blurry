@@ -1,4 +1,4 @@
-package jp.wasabeef.blurry.internal;
+package jp.wasabeef.blurry;
 
 import android.graphics.Color;
 
@@ -18,7 +18,7 @@ import android.graphics.Color;
  * limitations under the License.
  */
 
-public class BlurFactor {
+class BlurFactor {
 
   public static final int DEFAULT_RADIUS = 25;
   public static final int DEFAULT_SAMPLING = 1;

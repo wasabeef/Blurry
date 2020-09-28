@@ -1,9 +1,7 @@
-package jp.wasabeef.blurry.internal;
+package jp.wasabeef.blurry;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
@@ -28,14 +26,12 @@ import java.util.concurrent.Executors;
  * limitations under the License.
  */
 
-public class BlurTask {
+class BlurTask {
 
   public interface Callback {
-
-    void done(BitmapDrawable drawable);
+    void done(Bitmap bitmap);
   }
 
-  private final Resources res;
   private final WeakReference<Context> contextWeakRef;
   private final BlurFactor factor;
   private final Bitmap bitmap;
@@ -43,7 +39,6 @@ public class BlurTask {
   private static final ExecutorService THREAD_POOL = Executors.newCachedThreadPool();
 
   public BlurTask(View target, BlurFactor factor, Callback callback) {
-    this.res = target.getResources();
     this.factor = factor;
     this.callback = callback;
     this.contextWeakRef = new WeakReference<>(target.getContext());
@@ -55,7 +50,6 @@ public class BlurTask {
   }
 
   public BlurTask(Context context, Bitmap bitmap, BlurFactor factor, Callback callback) {
-    this.res = context.getResources();
     this.factor = factor;
     this.callback = callback;
     this.contextWeakRef = new WeakReference<>(context);
@@ -68,14 +62,11 @@ public class BlurTask {
       @Override
       public void run() {
         Context context = contextWeakRef.get();
-        final BitmapDrawable bitmapDrawable =
-          new BitmapDrawable(res, Blur.of(context, bitmap, factor));
-
         if (callback != null) {
           new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-              callback.done(bitmapDrawable);
+              callback.done(Blur.of(context, bitmap, factor));
             }
           });
         }

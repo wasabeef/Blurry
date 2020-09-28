@@ -1,13 +1,11 @@
-package jp.wasabeef.blurry.internal;
+package jp.wasabeef.blurry;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
-import android.os.Build;
 import android.renderscript.Allocation;
 import android.renderscript.Element;
 import android.renderscript.RSRuntimeException;
@@ -31,7 +29,7 @@ import android.view.View;
  * limitations under the License.
  */
 
-public class Blur {
+class Blur {
 
   public static Bitmap of(View view, BlurFactor factor) {
     view.setDrawingCacheEnabled(true);
@@ -62,13 +60,9 @@ public class Blur {
     paint.setColorFilter(filter);
     canvas.drawBitmap(source, 0, 0, paint);
 
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-      try {
-        bitmap = Blur.rs(context, bitmap, factor.radius);
-      } catch (RSRuntimeException e) {
-        bitmap = Blur.stack(bitmap, factor.radius, true);
-      }
-    } else {
+    try {
+      bitmap = Blur.rs(context, bitmap, factor.radius);
+    } catch (RSRuntimeException e) {
       bitmap = Blur.stack(bitmap, factor.radius, true);
     }
 
@@ -81,7 +75,6 @@ public class Blur {
     }
   }
 
-  @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
   private static Bitmap rs(Context context, Bitmap bitmap, int radius) throws RSRuntimeException {
     RenderScript rs = null;
     Allocation input = null;
