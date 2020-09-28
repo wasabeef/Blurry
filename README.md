@@ -62,6 +62,26 @@ Blurry.with(context)
   .onto(rootView);
 ```
 
+**Get a bitmap directly**
+```kotlin
+// Sync
+val bitmap = Blurry.with(this)
+  .radius(10)
+  .sampling(8)
+  .capture(findViewById(R.id.right_bottom)).get()
+imageView.setImageDrawable(BitmapDrawable(resources, bitmap))
+
+// Async
+Blurry.with(this)
+  .radius(25)
+  .sampling(4)
+  .color(Color.argb(66, 255, 255, 0))
+  .capture(findViewById(R.id.left_bottom))
+  .getAsync {
+    imageView.setImageDrawable(BitmapDrawable(resources, it))
+  }
+```
+
 Requirements
 --------------
 Android 3.+ (API 14)
