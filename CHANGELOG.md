@@ -9,7 +9,7 @@ Update
 - minSdkVersion -> 21
 
 Feature
-- [NEW] Get the bitmap directory.
+- [NEW] Get the bitmap directly.
   - `Blurry#get`, `Blurry#getAsync`
 - [BREAKING CHANGES] Remove `async(ImageComposerListener)`.  Use getAsync(BlurTask.Callback) instead that.
 
