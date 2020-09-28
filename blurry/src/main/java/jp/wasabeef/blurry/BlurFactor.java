@@ -1,16 +1,16 @@
-package jp.wasabeef.blurry.internal;
+package jp.wasabeef.blurry;
 
 import android.graphics.Color;
 
 /**
- * Copyright (C) 2018 Wasabeef
- *
+ * Copyright (C) 2020 Wasabeef
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,7 +18,7 @@ import android.graphics.Color;
  * limitations under the License.
  */
 
-public class BlurFactor {
+class BlurFactor {
 
   public static final int DEFAULT_RADIUS = 25;
   public static final int DEFAULT_SAMPLING = 1;

@@ -3,32 +3,34 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 
 android {
-    compileSdkVersion COMPILE_SDK_VERSION as int
+  compileSdkVersion COMPILE_SDK_VERSION as int
 
-    defaultConfig {
-        minSdkVersion MIN_SDK_VERSION as int
-        targetSdkVersion TARGET_SDK_VERSION as int
-        versionCode "git rev-list origin/master --count".execute().text.toInteger()
-        versionName VERSION_NAME
-    }
+  defaultConfig {
+    minSdkVersion MIN_SDK_VERSION as int
+    targetSdkVersion TARGET_SDK_VERSION as int
+    versionCode VERSION_CODE as int
+    versionName VERSION_NAME
+  }
 
-    buildTypes {
-        debug {
-            debuggable true
-            zipAlignEnabled true
-        }
-        release {
-            debuggable false
-            zipAlignEnabled true
-            minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            shrinkResources true
-        }
+  // SigningConfigs
+  apply from: '../signingConfigs/debug.gradle', to: android
+
+  buildTypes {
+    debug {
+      debuggable true
+      signingConfig signingConfigs.debug
     }
+    release {
+      debuggable false
+      zipAlignEnabled true
+      minifyEnabled true
+      shrinkResources true
+    }
+  }
 }
 
 dependencies {
-    implementation project(':blurry')
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation "androidx.appcompat:appcompat:1.0.2"
+  implementation project(':blurry')
+  implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+  implementation "androidx.appcompat:appcompat:1.2.0"
 }

@@ -1,6 +1,5 @@
-package jp.wasabeef.blurry.internal;
+package jp.wasabeef.blurry;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -16,14 +15,14 @@ import android.renderscript.ScriptIntrinsicBlur;
 import android.view.View;
 
 /**
- * Copyright (C) 2018 Wasabeef
- *
+ * Copyright (C) 2020 Wasabeef
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -31,7 +30,7 @@ import android.view.View;
  * limitations under the License.
  */
 
-public class Blur {
+class Blur {
 
   public static Bitmap of(View view, BlurFactor factor) {
     view.setDrawingCacheEnabled(true);
@@ -58,17 +57,13 @@ public class Blur {
     Paint paint = new Paint();
     paint.setFlags(Paint.FILTER_BITMAP_FLAG | Paint.ANTI_ALIAS_FLAG);
     PorterDuffColorFilter filter =
-        new PorterDuffColorFilter(factor.color, PorterDuff.Mode.SRC_ATOP);
+      new PorterDuffColorFilter(factor.color, PorterDuff.Mode.SRC_ATOP);
     paint.setColorFilter(filter);
     canvas.drawBitmap(source, 0, 0, paint);
 
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-      try {
-        bitmap = Blur.rs(context, bitmap, factor.radius);
-      } catch (RSRuntimeException e) {
-        bitmap = Blur.stack(bitmap, factor.radius, true);
-      }
-    } else {
+    try {
+      bitmap = Blur.rs(context, bitmap, factor.radius);
+    } catch (RSRuntimeException e) {
       bitmap = Blur.stack(bitmap, factor.radius, true);
     }
 
@@ -81,7 +76,6 @@ public class Blur {
     }
   }
 
-  @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
   private static Bitmap rs(Context context, Bitmap bitmap, int radius) throws RSRuntimeException {
     RenderScript rs = null;
     Allocation input = null;
@@ -91,7 +85,7 @@ public class Blur {
       rs = RenderScript.create(context);
       rs.setMessageHandler(new RenderScript.RSMessageHandler());
       input = Allocation.createFromBitmap(rs, bitmap, Allocation.MipmapControl.MIPMAP_NONE,
-          Allocation.USAGE_SCRIPT);
+        Allocation.USAGE_SCRIPT);
       output = Allocation.createTyped(rs, input.getType());
       blur = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs));
 
@@ -101,7 +95,11 @@ public class Blur {
       output.copyTo(bitmap);
     } finally {
       if (rs != null) {
-        rs.destroy();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+          RenderScript.releaseAllContexts();
+        } else {
+          rs.destroy();
+        }
       }
       if (input != null) {
         input.destroy();
@@ -169,15 +167,15 @@ public class Blur {
     int wh = w * h;
     int div = radius + radius + 1;
 
-    int r[] = new int[wh];
-    int g[] = new int[wh];
-    int b[] = new int[wh];
+    int[] r = new int[wh];
+    int[] g = new int[wh];
+    int[] b = new int[wh];
     int rsum, gsum, bsum, x, y, i, p, yp, yi, yw;
-    int vmin[] = new int[Math.max(w, h)];
+    int[] vmin = new int[Math.max(w, h)];
 
     int divsum = (div + 1) >> 1;
     divsum *= divsum;
-    int dv[] = new int[256 * divsum];
+    int[] dv = new int[256 * divsum];
     for (i = 0; i < 256 * divsum; i++) {
       dv[i] = (i / divsum);
     }

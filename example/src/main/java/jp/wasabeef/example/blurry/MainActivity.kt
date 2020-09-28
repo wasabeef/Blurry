@@ -1,10 +1,12 @@
 package jp.wasabeef.example.blurry
 
 import android.graphics.Color
+import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import jp.wasabeef.blurry.Blurry
 
@@ -17,30 +19,30 @@ class MainActivity : AppCompatActivity() {
     findViewById<View>(R.id.button).setOnClickListener {
       val startMs = System.currentTimeMillis()
       Blurry.with(this)
-          .radius(25)
-          .sampling(1)
-          .color(Color.argb(66, 0, 255, 255))
-          .async()
-          .capture(findViewById(R.id.right_top))
-          .into(findViewById(R.id.right_top))
+        .radius(25)
+        .sampling(1)
+        .color(Color.argb(66, 0, 255, 255))
+        .async()
+        .capture(findViewById(R.id.right_top))
+        .into(findViewById(R.id.right_top))
+
+      val bitmap = Blurry.with(this)
+        .radius(10)
+        .sampling(8)
+        .capture(findViewById(R.id.right_bottom)).get()
+      findViewById<ImageView>(R.id.right_bottom).setImageDrawable(BitmapDrawable(resources, bitmap))
 
       Blurry.with(this)
-          .radius(10)
-          .sampling(8)
-          .async()
-          .capture(findViewById(R.id.right_bottom))
-          .into(findViewById(R.id.right_bottom))
-
-      Blurry.with(this)
-          .radius(25)
-          .sampling(1)
-          .color(Color.argb(66, 255, 255, 0))
-          .async()
-          .capture(findViewById(R.id.left_bottom))
-          .into(findViewById(R.id.left_bottom))
+        .radius(25)
+        .sampling(4)
+        .color(Color.argb(66, 255, 255, 0))
+        .capture(findViewById(R.id.left_bottom))
+        .getAsync {
+          findViewById<ImageView>(R.id.left_bottom).setImageDrawable(BitmapDrawable(resources, it))
+        }
 
       Log.d(getString(R.string.app_name),
-          "TIME " + (System.currentTimeMillis() - startMs).toString() + "ms")
+        "TIME " + (System.currentTimeMillis() - startMs).toString() + "ms")
     }
 
     findViewById<View>(R.id.button).setOnLongClickListener(object : View.OnLongClickListener {
@@ -53,13 +55,13 @@ class MainActivity : AppCompatActivity() {
         } else {
           val startMs = System.currentTimeMillis()
           Blurry.with(this@MainActivity)
-              .radius(25)
-              .sampling(2)
-              .async()
-              .animate(500)
-              .onto(findViewById<View>(R.id.content) as ViewGroup)
+            .radius(25)
+            .sampling(2)
+            .async()
+            .animate(500)
+            .onto(findViewById<View>(R.id.content) as ViewGroup)
           Log.d(getString(R.string.app_name),
-              "TIME " + (System.currentTimeMillis() - startMs).toString() + "ms")
+            "TIME " + (System.currentTimeMillis() - startMs).toString() + "ms")
         }
 
         blurred = !blurred

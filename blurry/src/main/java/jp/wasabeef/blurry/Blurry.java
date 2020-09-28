@@ -7,21 +7,16 @@ import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import jp.wasabeef.blurry.Blurry.ImageComposer.ImageComposerListener;
-import jp.wasabeef.blurry.internal.Blur;
-import jp.wasabeef.blurry.internal.BlurFactor;
-import jp.wasabeef.blurry.internal.BlurTask;
-import jp.wasabeef.blurry.internal.Helper;
 
 /**
- * Copyright (C) 2018 Wasabeef
- *
+ * Copyright (C) 2020 Wasabeef
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -46,13 +41,12 @@ public class Blurry {
 
   public static class Composer {
 
-    private View blurredView;
-    private Context context;
-    private BlurFactor factor;
+    private final View blurredView;
+    private final Context context;
+    private final BlurFactor factor;
     private boolean async;
     private boolean animate;
     private int duration = 300;
-    private ImageComposerListener listener;
 
     public Composer(Context context) {
       this.context = context;
@@ -81,12 +75,6 @@ public class Blurry {
       return this;
     }
 
-    public Composer async(ImageComposerListener listener) {
-      async = true;
-      this.listener = listener;
-      return this;
-    }
-
     public Composer animate() {
       animate = true;
       return this;
@@ -99,11 +87,11 @@ public class Blurry {
     }
 
     public ImageComposer capture(View capture) {
-      return new ImageComposer(context, capture, factor, async, listener);
+      return new ImageComposer(context, capture, factor, async);
     }
 
     public BitmapComposer from(Bitmap bitmap) {
-      return new BitmapComposer(context, bitmap, factor, async, listener);
+      return new BitmapComposer(context, bitmap, factor, async);
     }
 
     public void onto(final ViewGroup target) {
@@ -112,11 +100,11 @@ public class Blurry {
 
       if (async) {
         BlurTask task = new BlurTask(target, factor, new BlurTask.Callback() {
-          @Override public void done(BitmapDrawable drawable) {
+          @Override
+          public void done(Bitmap bitmap) {
+            final BitmapDrawable drawable =
+              new BitmapDrawable(target.getResources(), Blur.of(context, bitmap, factor));
             addView(target, drawable);
-            if (listener != null) {
-              listener.onImageReady(drawable);
-            }
           }
         });
         task.execute();
@@ -127,7 +115,7 @@ public class Blurry {
     }
 
     private void addView(ViewGroup target, Drawable drawable) {
-      Helper.setBackground(blurredView, drawable);
+      blurredView.setBackground(drawable);
       target.addView(blurredView);
 
       if (animate) {
@@ -138,19 +126,16 @@ public class Blurry {
 
   public static class BitmapComposer {
 
-    private Context context;
-    private Bitmap bitmap;
-    private BlurFactor factor;
-    private boolean async;
-    private ImageComposerListener listener;
+    private final Context context;
+    private final Bitmap bitmap;
+    private final BlurFactor factor;
+    private final boolean async;
 
-    public BitmapComposer(Context context, Bitmap bitmap, BlurFactor factor, boolean async,
-        ImageComposerListener listener) {
+    public BitmapComposer(Context context, Bitmap bitmap, BlurFactor factor, boolean async) {
       this.context = context;
       this.bitmap = bitmap;
       this.factor = factor;
       this.async = async;
-      this.listener = listener;
     }
 
     public void into(final ImageView target) {
@@ -159,18 +144,16 @@ public class Blurry {
 
       if (async) {
         BlurTask task = new BlurTask(target.getContext(), bitmap, factor, new BlurTask.Callback() {
-          @Override public void done(BitmapDrawable drawable) {
-            if (listener == null) {
-              target.setImageDrawable(drawable);
-            } else {
-              listener.onImageReady(drawable);
-            }
+          @Override
+          public void done(Bitmap bitmap) {
+            BitmapDrawable drawable = new BitmapDrawable(context.getResources(), bitmap);
+            target.setImageDrawable(drawable);
           }
         });
         task.execute();
       } else {
         Drawable drawable = new BitmapDrawable(context.getResources(),
-            Blur.of(target.getContext(), bitmap, factor));
+          Blur.of(target.getContext(), bitmap, factor));
         target.setImageDrawable(drawable);
       }
     }
@@ -178,19 +161,16 @@ public class Blurry {
 
   public static class ImageComposer {
 
-    private Context context;
-    private View capture;
-    private BlurFactor factor;
-    private boolean async;
-    private ImageComposerListener listener;
+    private final Context context;
+    private final View capture;
+    private final BlurFactor factor;
+    private final boolean async;
 
-    public ImageComposer(Context context, View capture, BlurFactor factor, boolean async,
-        ImageComposerListener listener) {
+    public ImageComposer(Context context, View capture, BlurFactor factor, boolean async) {
       this.context = context;
       this.capture = capture;
       this.factor = factor;
       this.async = async;
-      this.listener = listener;
     }
 
     public void into(final ImageView target) {
@@ -199,12 +179,10 @@ public class Blurry {
 
       if (async) {
         BlurTask task = new BlurTask(capture, factor, new BlurTask.Callback() {
-          @Override public void done(BitmapDrawable drawable) {
-            if (listener == null) {
-              target.setImageDrawable(drawable);
-            } else {
-              listener.onImageReady(drawable);
-            }
+          @Override
+          public void done(Bitmap bitmap) {
+            BitmapDrawable drawable = new BitmapDrawable(context.getResources(), bitmap);
+            target.setImageDrawable(drawable);
           }
         });
         task.execute();
@@ -214,8 +192,17 @@ public class Blurry {
       }
     }
 
-    public interface ImageComposerListener {
-      void onImageReady(BitmapDrawable drawable);
+    public Bitmap get() {
+      if (async) throw new IllegalArgumentException("Use getAsync() instead of async().");
+      factor.width = capture.getMeasuredWidth();
+      factor.height = capture.getMeasuredHeight();
+      return Blur.of(capture, factor);
+    }
+
+    public void getAsync(BlurTask.Callback callback) {
+      factor.width = capture.getMeasuredWidth();
+      factor.height = capture.getMeasuredHeight();
+      new BlurTask(capture, factor, callback).execute();
     }
   }
 }
