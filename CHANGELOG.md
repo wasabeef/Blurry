@@ -1,6 +1,18 @@
 Change Log
 ==========
 
+Version 4.0.0 *(2020-09-28)*
+----------------------------
+
+Update
+- Compile & Target SDK Version 28 -> 30
+- minSdkVersion -> 21
+
+Feature
+- [NEW] Get the bitmap directory.
+  - `Blurry#get`, `Blurry#getAsync`
+- [BREAKING CHANGES] Remove `async(ImageComposerListener)`.  Use getAsync(BlurTask.Callback) instead that.
+
 Version 3.0.0 *(2018-11-19)*
 ----------------------------
 
