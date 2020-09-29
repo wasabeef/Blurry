@@ -84,7 +84,7 @@ Blurry.with(this)
 
 Requirements
 --------------
-Android 3.+ (API 14)
+Android 5.+ (API 21)
 
 Developed By
 -------
