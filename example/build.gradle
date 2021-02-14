@@ -29,6 +29,10 @@ android {
   }
 }
 
+repositories {
+//   maven { url = "https://oss.sonatype.org/content/repositories/snapshots"}
+}
+
 dependencies {
   implementation project(':blurry')
   implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
