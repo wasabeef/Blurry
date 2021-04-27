@@ -68,7 +68,7 @@ class Blur {
       try {
         bitmap = Blur.rs(context, bitmap, factor.radius);
       } catch (RSRuntimeException e) {
-        bitmap = Blur.stack(bitmap, factor.radius, true);
+        bitmap = Blur.optimizedStack(bitmap, factor.radius, true);
       }
     }
 
