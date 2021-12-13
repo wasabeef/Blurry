@@ -23,7 +23,7 @@ repositories {
 }
 
 dependencies {
-    compile 'jp.wasabeef:blurry:4.0.0'
+    compile 'jp.wasabeef:blurry:4.0.1'
 }
 ```
 

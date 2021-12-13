@@ -1,6 +1,12 @@
 Change Log
 ==========
 
+Version 4.0.1 *(2021-12-13)*
+----------------------------
+
+Fix:
+- Calling RS with no Context active [#103](https://github.com/wasabeef/Blurry/issues/103)
+
 Version 4.0.0 *(2020-09-28)*
 ----------------------------
 
