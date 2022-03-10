@@ -1,9 +1,14 @@
 package jp.wasabeef.blurry;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Rect;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
+import android.view.PixelCopy;
 import android.view.View;
 
 import java.lang.ref.WeakReference;
@@ -34,19 +39,48 @@ class BlurTask {
 
   private final WeakReference<Context> contextWeakRef;
   private final BlurFactor factor;
-  private final Bitmap bitmap;
+  private Bitmap bitmap;
   private final Callback callback;
   private static final ExecutorService THREAD_POOL = Executors.newCachedThreadPool();
+  private boolean bitmapExtractCompleted = false;
 
-  public BlurTask(View target, BlurFactor factor, Callback callback) {
+  public BlurTask(Activity activity, View target, BlurFactor factor, Callback callback) {
     this.factor = factor;
     this.callback = callback;
     this.contextWeakRef = new WeakReference<>(target.getContext());
 
+    long start = System.currentTimeMillis();
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && activity != null) {
+      // Use PixelCopy, PixelCopy copies from the surface, and can thus handle GoogleMap
+      bitmap = Bitmap.createBitmap(target.getWidth(), target.getHeight(), Bitmap.Config.ARGB_8888);
+
+      int[] locations = new int[2];
+      target.getLocationInWindow(locations);
+      Rect rect = new Rect(locations[0], locations[1], locations[0] + target.getWidth(), locations[1] + target.getHeight());
+
+
+      PixelCopy.request(activity.getWindow(), rect, bitmap, copyResult -> {
+        if (copyResult != PixelCopy.SUCCESS) {
+          bitmap = extractBitmapByDeprecatedDrawingCache(target);
+        }
+        bitmapExtractCompleted = true;
+        execute();
+      }, new Handler(Looper.getMainLooper())); // We will get the callback on the handler, probably don't use main, maybe it has to be main if we want to extract bitmap old fashioned way on error
+    } else {
+      bitmap = extractBitmapByDeprecatedDrawingCache(target);
+      bitmapExtractCompleted = true;
+    }
+    if (BuildConfig.DEBUG) Log.i("Blurry", "Time to extract  bitmap: " + (System.currentTimeMillis() - start) + "ms"); // 25-60 ms
+  }
+
+  private Bitmap extractBitmapByDeprecatedDrawingCache(View target) {
+    long start = System.currentTimeMillis();
     target.setDrawingCacheEnabled(true);
     target.destroyDrawingCache();
     target.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_LOW);
-    bitmap = target.getDrawingCache();
+    final Bitmap bitmap = target.getDrawingCache();
+    if (BuildConfig.DEBUG) Log.i("Blurry", "Time to extract  bitmap: " + (System.currentTimeMillis() - start) + "ms"); // 25-60 ms
+    return bitmap;
   }
 
   public BlurTask(Context context, Bitmap bitmap, BlurFactor factor, Callback callback) {
@@ -58,19 +92,15 @@ class BlurTask {
   }
 
   public void execute() {
-    THREAD_POOL.execute(new Runnable() {
-      @Override
-      public void run() {
+    if (bitmapExtractCompleted) {
+      THREAD_POOL.execute(() -> {
         Context context = contextWeakRef.get();
+        // Do the work outside main-thread
+        Bitmap output = Blur.of(context, bitmap, factor);
         if (callback != null) {
-          new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-              callback.done(Blur.of(context, bitmap, factor));
-            }
-          });
+          new Handler(Looper.getMainLooper()).post(() -> callback.done(output));
         }
-      }
-    });
+      });
+    }
   }
 }
