@@ -11,7 +11,14 @@ import android.renderscript.Element;
 import android.renderscript.RSRuntimeException;
 import android.renderscript.RenderScript;
 import android.renderscript.ScriptIntrinsicBlur;
+import android.util.Log;
 import android.view.View;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Copyright (C) 2020 Wasabeef
@@ -48,9 +55,10 @@ class Blur {
     if (Helper.hasZero(width, height)) {
       return null;
     }
-
+    // Note that timing has only been added in debug, but app may run slower in debug than in release Profile claims (maybe due to proguard which AndroidBooking does not use)
     Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
 
+    long startDrawToCanvas = System.currentTimeMillis();
     Canvas canvas = new Canvas(bitmap);
     canvas.scale(1 / (float) factor.sampling, 1 / (float) factor.sampling);
     Paint paint = new Paint();
@@ -59,17 +67,21 @@ class Blur {
       new PorterDuffColorFilter(factor.color, PorterDuff.Mode.SRC_ATOP);
     paint.setColorFilter(filter);
     canvas.drawBitmap(source, 0, 0, paint);
+    if (BuildConfig.DEBUG) Log.i("Blurry", "Time to draw source to Canvas: " + (System.currentTimeMillis() - startDrawToCanvas) + "ms");
 
+    long startBlur = System.currentTimeMillis();
     if (Build.VERSION.SDK_INT >= 31) {
       // Render script is deprecated in Android S
       bitmap = Blur.optimizedStack(bitmap, factor.radius, true);
     } else {
       try {
+        // RenderScript is hardware accelerated up to Android-11. See https://developer.android.com/guide/topics/renderscript/compute
         bitmap = Blur.rs(context, bitmap, factor.radius);
       } catch (RSRuntimeException e) {
         bitmap = Blur.optimizedStack(bitmap, factor.radius, true);
       }
     }
+    if (BuildConfig.DEBUG) Log.i("Blurry", "Time to blur: " + (System.currentTimeMillis() - startBlur) + "ms");
 
     if (factor.sampling == BlurFactor.DEFAULT_SAMPLING) {
       return bitmap;
@@ -380,11 +392,32 @@ class Blur {
     bitmap.getPixels(src, 0, w, 0, 0, w, h);
     int cores = EXECUTOR_THREADS;
 
-    for(int i = 0; i < cores; i++) {
-      internal_optimized_stack_iteration(src, w, h, radius, cores, i, 1);
-      internal_optimized_stack_iteration(src, w, h, radius, cores, i, 2);
-    }
+    // The multi-threaded version produces images with small errors, hence disabled
+    if (cores > 1 && false) {
+      ExecutorService threadPool = Executors.newFixedThreadPool(cores); // Maybe move out into static Blurry, instead of recreating on each run.
+      // The cores may not be equally fast, so we make more jobs than cores. Its significantly faster to use cores*5 than cores job on Samsung S20 FE.
+      int jobs = cores * 10;
+      List<Callable<Object>> todo = new ArrayList<>(jobs);
 
+      for (int i = 0; i < jobs; i++) {
+        final int job = i;
+        todo.add(() -> {
+          internal_optimized_stack_iteration(src, w, h, radius, jobs, job, 1);
+          internal_optimized_stack_iteration(src, w, h, radius, jobs, job, 2);
+          if (BuildConfig.DEBUG) Log.i("Blurry", job+" finished, thread="+Thread.currentThread().getName());
+          return null;
+        });
+      }
+      try {
+        threadPool.invokeAll(todo);
+      } catch (InterruptedException e) {
+      }
+      if (BuildConfig.DEBUG) Log.i("Blurry", "All jobs finished");
+    } else {
+      // it runs in same thread, so just say theres 1 core
+      internal_optimized_stack_iteration(src, w, h, radius, 1, 0, 1);
+      internal_optimized_stack_iteration(src, w, h, radius, 1, 0, 2);
+    }
     return Bitmap.createBitmap(src, w, h, Bitmap.Config.ARGB_8888);
   }
 
@@ -546,8 +579,7 @@ class Blur {
         if (yp > hm) yp = hm;
         src_i = x + yp * w; // img.pix_ptr(x, yp);
         dst_i = x;               // img.pix_ptr(x, 0);
-        for(y = 0; y < h; y++)
-        {
+        for (y = 0; y < h; y++) {
           src[dst_i] = (int)
             ((src[dst_i] & 0xff000000) |
               ((((sum_r * mul_sum) >>> shr_sum) & 0xff) << 16) |
@@ -560,15 +592,14 @@ class Blur {
           sum_b -= sum_out_b;
 
           stack_start = sp + div - radius;
-          if(stack_start >= div) stack_start -= div;
+          if (stack_start >= div) stack_start -= div;
           stack_i = stack_start;
 
           sum_out_r -= ((stack[stack_i] >>> 16) & 0xff);
           sum_out_g -= ((stack[stack_i] >>> 8) & 0xff);
           sum_out_b -= (stack[stack_i] & 0xff);
 
-          if(yp < hm)
-          {
+          if (yp < hm) {
             src_i += w; // stride
             ++yp;
           }
@@ -578,9 +609,9 @@ class Blur {
           sum_in_r += ((src[src_i] >>> 16) & 0xff);
           sum_in_g += ((src[src_i] >>> 8) & 0xff);
           sum_in_b += (src[src_i] & 0xff);
-          sum_r    += sum_in_r;
-          sum_g    += sum_in_g;
-          sum_b    += sum_in_b;
+          sum_r += sum_in_r;
+          sum_g += sum_in_g;
+          sum_b += sum_in_b;
 
           ++sp;
           if (sp >= div) sp = 0;
@@ -589,9 +620,9 @@ class Blur {
           sum_out_r += ((stack[stack_i] >>> 16) & 0xff);
           sum_out_g += ((stack[stack_i] >>> 8) & 0xff);
           sum_out_b += (stack[stack_i] & 0xff);
-          sum_in_r  -= ((stack[stack_i] >>> 16) & 0xff);
-          sum_in_g  -= ((stack[stack_i] >>> 8) & 0xff);
-          sum_in_b  -= (stack[stack_i] & 0xff);
+          sum_in_r -= ((stack[stack_i] >>> 16) & 0xff);
+          sum_in_g -= ((stack[stack_i] >>> 8) & 0xff);
+          sum_in_b -= (stack[stack_i] & 0xff);
         }
       }
     }
