@@ -34,18 +34,18 @@ dependencies {
 Parent must be ViewGroup
 
 ```kotlin
-Blurry.with(context).radius(25).sampling(2).onto(rootView)
+Blurry.with(activity).radius(25).sampling(2).onto(rootView)
 ```
 
 **Into**  
 ```kotlin
 // from View
-Blurry.with(context).capture(view).into(imageView)
+Blurry.with(activity).capture(view).into(imageView)
 ```
 
 ```kotlin
 // from Bitmap 
-Blurry.with(context).from(bitmap).into(imageView)
+Blurry.with(activity).from(bitmap).into(imageView)
 ```
 
 **Blur Options**
@@ -57,7 +57,7 @@ Blurry.with(context).from(bitmap).into(imageView)
 - Animation (Overlay Only)
 
 ```java
-Blurry.with(context)
+Blurry.with(activity)
   .radius(10)
   .sampling(8)
   .color(Color.argb(66, 255, 255, 0))
@@ -69,14 +69,14 @@ Blurry.with(context)
 **Get a bitmap directly**
 ```kotlin
 // Sync
-val bitmap = Blurry.with(this)
+val bitmap = Blurry.with(activity)
   .radius(10)
   .sampling(8)
   .capture(findViewById(R.id.right_bottom)).get()
 imageView.setImageDrawable(BitmapDrawable(resources, bitmap))
 
 // Async
-Blurry.with(this)
+Blurry.with(activity)
   .radius(25)
   .sampling(4)
   .color(Color.argb(66, 255, 255, 0))
@@ -85,6 +85,64 @@ Blurry.with(this)
     imageView.setImageDrawable(BitmapDrawable(resources, it))
   }
 ```
+
+**Blur a view that contains a Google Map or other surface**
+
+On API-26 and newer, Blurry uses PixelCopy to copy directly from the surface of the window,  
+and can thus obtain a bitmap that contains a GoogleMap. Blurry automatically use PixelCopy when using  
+`Blurry.with(activity)` instead of the deprecated `Blurry.with(context)`. To use get a blurred view for any API,  
+something like this can be done:
+
+```kotlin
+fun runBlurry() {
+    // Async to stay off UI thread
+    Blurry.with(activity)
+        .sampling(4) // This makes it much faster and more blurry, so less radius is needed, and less radius also makes it faster
+        .radius(5)
+        .capture(rootViewContainerToBlur)
+        .getAsync { 
+            val drawable = BitmapDrawable(target.resources, it)
+            blurView.setImageDrawable(drawable)
+        }
+}
+
+if (!Blurry.isSurfaceCaptureSupported) {
+    // Before API-26, lets help Blurry out and capture the GoogleMap Surface into a regular ImageView, and proceed when ready
+    blurryMapCaptureView.onMapCaptured {
+        runBlurry()
+    }
+} else {
+    runBlurry()
+}
+
+// Let blurryMapCaptureView cover the Google Map Fragment. 
+val blurryMapCaptureView: BlurryMapCaptureView
+class BlurryMapCaptureView : AppCompatImageView {
+    constructor(context: Context) : super(context)
+    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
+    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
+
+    private lateinit var map: GoogleMap
+
+    fun initialize(map: GoogleMap) {
+        this.map = map
+    }
+
+    fun onMapCaptured(onReadyToCaptureMapAction: () -> Unit) {
+        map.snapshot { bitmap: Bitmap? ->
+            visibility = VISIBLE
+            setImageBitmap(bitmap)
+            doOnPreDraw {
+                onReadyToCaptureMapAction()
+                visibility = GONE
+                setImageBitmap(null)
+            }
+        }
+    }
+
+}```
+
+
 
 Requirements
 --------------
