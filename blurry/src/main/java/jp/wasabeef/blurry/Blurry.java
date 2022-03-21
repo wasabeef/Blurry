@@ -55,7 +55,7 @@ public class Blurry {
   public static class Composer {
 
     private final View blurredView;
-    private final Activity activity;
+    private final Activity activity; // Nullable
     private final Context context;
     private final BlurFactor factor;
     private boolean async;
