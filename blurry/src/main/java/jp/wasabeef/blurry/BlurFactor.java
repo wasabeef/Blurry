@@ -1,6 +1,7 @@
 package jp.wasabeef.blurry;
 
 import android.graphics.Color;
+import android.graphics.Rect;
 
 /**
  * Copyright (C) 2020 Wasabeef
@@ -28,4 +29,5 @@ class BlurFactor {
   public int radius = DEFAULT_RADIUS;
   public int sampling = DEFAULT_SAMPLING;
   public int color = Color.TRANSPARENT;
+  public Rect hotRect;
 }

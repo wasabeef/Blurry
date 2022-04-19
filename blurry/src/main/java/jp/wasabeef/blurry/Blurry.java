@@ -2,6 +2,7 @@ package jp.wasabeef.blurry;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.view.View;
@@ -95,8 +96,22 @@ public class Blurry {
     }
 
     public void onto(final ViewGroup target) {
+      onto(target, null);
+    }
+
+    public void onto(final ViewGroup target, final View hotView) {
       factor.width = target.getMeasuredWidth();
       factor.height = target.getMeasuredHeight();
+
+      if (hotView != null) {
+        final int[] hotPos = new int[2];
+        hotView.getLocationOnScreen(hotPos);
+        final int[] targetPos = new int[2];
+        target.getLocationOnScreen(targetPos);
+        final int relativeX = hotPos[0] - targetPos[0];
+        final int relativeY = hotPos[1] - targetPos[1];
+        factor.hotRect = new Rect(relativeX, relativeY, hotView.getWidth() + relativeX, hotView.getHeight() + relativeY);
+      }
 
       if (async) {
         BlurTask task = new BlurTask(target, factor, new BlurTask.Callback() {
