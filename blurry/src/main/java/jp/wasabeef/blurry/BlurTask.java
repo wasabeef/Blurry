@@ -12,7 +12,6 @@ import android.view.PixelCopy;
 import android.view.View;
 import android.view.Window;
 
-import java.lang.ref.WeakReference;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -39,7 +38,7 @@ class BlurTask {
   }
 
   private static final String TAG = "Blurry_BlurTask";
-  private final WeakReference<Context> contextWeakRef;
+  private final Context context;
   private final BlurFactor factor;
   private final Handler handler = new Handler(Looper.getMainLooper());
   private Bitmap bitmap;
@@ -50,10 +49,10 @@ class BlurTask {
   /**
    * @param activity Nullable, will fall back to non-surface deprecated drawing-cache when no activity is supplied
    */
-  public BlurTask(Activity activity, View target, BlurFactor factor, Callback callback) {
+  public BlurTask(Activity activity /*nullable*/, View target, BlurFactor factor, Callback callback) {
     this.factor = factor;
     this.callback = callback;
-    this.contextWeakRef = new WeakReference<>(target.getContext());
+    this.context = target.getContext().getApplicationContext();
 
     long start = System.currentTimeMillis();
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && activity != null && activity.getWindow().peekDecorView() != null) {
@@ -110,8 +109,7 @@ class BlurTask {
   public BlurTask(Context context, Bitmap bitmap, BlurFactor factor, Callback callback) {
     this.factor = factor;
     this.callback = callback;
-    this.contextWeakRef = new WeakReference<>(context);
-
+    this.context = context;
     this.bitmap = bitmap;
   }
 
@@ -123,8 +121,6 @@ class BlurTask {
 
   private void executeInnerOnBackgroundThreadPool() {
     THREAD_POOL.execute(() -> {
-      Context context = contextWeakRef.get();
-      if (context == null) return ; // if contextWeakRef has been destroyed
       // Do the work outside main-thread
       Bitmap output = Blur.of(context, bitmap, factor);
       if (callback != null) {
