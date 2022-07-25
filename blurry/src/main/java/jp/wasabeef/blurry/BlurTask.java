@@ -1,5 +1,6 @@
 package jp.wasabeef.blurry;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -42,6 +43,7 @@ class BlurTask {
   private final BlurFactor factor;
   private final Handler handler = new Handler(Looper.getMainLooper());
   private Bitmap bitmap;
+  private View target;
   private final Callback callback;
   private static final ExecutorService THREAD_POOL = Executors.newCachedThreadPool();
   private boolean usingPixelCopyWithDelayedExecute;
@@ -53,7 +55,19 @@ class BlurTask {
     this.factor = factor;
     this.callback = callback;
     this.context = target.getContext().getApplicationContext();
+    // When PixelCopy runs this bitmap is just the reference, its still empty
+    this.bitmap = extractBitmapWithAsyncPixelCopy(activity, target);
+  }
 
+  public BlurTask(Context context, Bitmap bitmap, BlurFactor factor, Callback callback) {
+    this.factor = factor;
+    this.callback = callback;
+    this.context = context;
+    this.bitmap = bitmap;
+  }
+
+  private Bitmap extractBitmapWithAsyncPixelCopy(Activity activity, View target) {
+    Bitmap bitmap;
     long start = System.currentTimeMillis();
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && activity != null && activity.getWindow().peekDecorView() != null) {
       // Use PixelCopy, PixelCopy copies from the surface, and can thus handle GoogleMap
@@ -68,19 +82,8 @@ class BlurTask {
       // - it requires that the window's decorView is already defined (handled in if-statement above)
       // - and it requires that the window has a backing surface, they recommend postponing till after first onDraw. In this case catch error an fall back to deprecated drawing cache.
       //   Alternatively we or the user must delay til after first Draw.
-      PixelCopy.OnPixelCopyFinishedListener pixelCopyListener = copyResult -> {
-        // This runs on main thread, just as we expect the BlurTask constructor to run on
-        boolean isPixelCopySuccessful = copyResult == PixelCopy.SUCCESS;
-        if (!isPixelCopySuccessful) {
-          if (Blurry.DO_LOG) Log.w(TAG, "PixelCopy failed, fallback to manual extraction");
-          bitmap = extractBitmapByDeprecatedDrawingCache(target);
-        } else {
-          if (Blurry.DO_LOG) Log.d(TAG, "PixelCopy success");
-        }
-        executeInnerOnBackgroundThreadPool();
-      };
       try {
-        PixelCopy.request(window, rect, bitmap, pixelCopyListener, handler);
+        PixelCopy.request(window, rect, bitmap, createPixelCopyListener(), handler);
         usingPixelCopyWithDelayedExecute = true; // Must be after successful request, so if surface isn't ready, then the execute() actually executes request
         if (Blurry.DO_LOG) Log.d(TAG, "PixelCopy: Registered for callback");
       } catch (IllegalArgumentException e) {
@@ -92,7 +95,24 @@ class BlurTask {
     } else {
       bitmap = extractBitmapByDeprecatedDrawingCache(target);
     }
-    if (Blurry.DO_LOG) Log.d(TAG, "Time to extract  bitmap: " + (System.currentTimeMillis() - start) + "ms"); // 25-60 ms
+    if (Blurry.DO_LOG)
+      Log.d(TAG, "Time to extract  bitmap: " + (System.currentTimeMillis() - start) + "ms"); // 25-60 ms
+    return bitmap;
+  }
+
+  // @android.support.annotation.RequiresApi(api = Build.VERSION_CODES.N)
+  private PixelCopy.OnPixelCopyFinishedListener createPixelCopyListener() {
+    return copyResult -> {
+      // This runs on main thread, just as we expect the BlurTask constructor to run on
+      @SuppressLint("InlinedApi") boolean isPixelCopySuccessful = copyResult == PixelCopy.SUCCESS;
+      if (!isPixelCopySuccessful) {
+        if (Blurry.DO_LOG) Log.w(TAG, "PixelCopy failed, fallback to manual extraction");
+        this.bitmap = extractBitmapByDeprecatedDrawingCache(target);
+      } else {
+        if (Blurry.DO_LOG) Log.d(TAG, "PixelCopy success");
+      }
+      executeInnerOnBackgroundThreadPool();
+    };
   }
 
   // This must run on main thread, as it accesses view-methods
@@ -102,15 +122,9 @@ class BlurTask {
     target.destroyDrawingCache();
     target.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_LOW);
     final Bitmap bitmap = target.getDrawingCache();
-    if (Blurry.DO_LOG) Log.d(TAG, "Time to extract  bitmap: " + (System.currentTimeMillis() - start) + "ms"); // 25-60 ms
+    if (Blurry.DO_LOG)
+      Log.d(TAG, "Time to extract  bitmap: " + (System.currentTimeMillis() - start) + "ms"); // 25-60 ms
     return bitmap;
-  }
-
-  public BlurTask(Context context, Bitmap bitmap, BlurFactor factor, Callback callback) {
-    this.factor = factor;
-    this.callback = callback;
-    this.context = context;
-    this.bitmap = bitmap;
   }
 
   public void execute() {
