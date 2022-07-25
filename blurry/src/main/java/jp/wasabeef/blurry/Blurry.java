@@ -29,7 +29,9 @@ import android.widget.ImageView;
 public class Blurry {
 
   private static final String TAG = Blurry.class.getSimpleName();
+  public static boolean DO_LOG = BuildConfig.DEBUG;
 
+  //@androidx.annotation.ChecksSdkIntAtLeast(api = Build.VERSION_CODES.O)
   public static boolean isSurfaceCaptureSupported = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O;
 
   /**

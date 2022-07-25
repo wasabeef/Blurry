@@ -38,12 +38,14 @@ class BlurTask {
     void done(Bitmap bitmap);
   }
 
+  private static final String TAG = "Blurry_BlurTask";
   private final WeakReference<Context> contextWeakRef;
   private final BlurFactor factor;
+  private final Handler handler = new Handler(Looper.getMainLooper());
   private Bitmap bitmap;
   private final Callback callback;
   private static final ExecutorService THREAD_POOL = Executors.newCachedThreadPool();
-  private boolean bitmapExtractCompleted = false;
+  private boolean usingPixelCopyWithDelayedExecute;
 
   /**
    * @param activity Nullable, will fall back to non-surface deprecated drawing-cache when no activity is supplied
@@ -67,33 +69,41 @@ class BlurTask {
       // - it requires that the window's decorView is already defined (handled in if-statement above)
       // - and it requires that the window has a backing surface, they recommend postponing till after first onDraw. In this case catch error an fall back to deprecated drawing cache.
       //   Alternatively we or the user must delay til after first Draw.
+      PixelCopy.OnPixelCopyFinishedListener pixelCopyListener = copyResult -> {
+        // This runs on main thread, just as we expect the BlurTask constructor to run on
+        boolean isPixelCopySuccessful = copyResult == PixelCopy.SUCCESS;
+        if (!isPixelCopySuccessful) {
+          if (Blurry.DO_LOG) Log.w(TAG, "PixelCopy failed, fallback to manual extraction");
+          bitmap = extractBitmapByDeprecatedDrawingCache(target);
+        } else {
+          if (Blurry.DO_LOG) Log.d(TAG, "PixelCopy success");
+        }
+        executeInnerOnBackgroundThreadPool();
+      };
       try {
-        PixelCopy.request(window, rect, bitmap, copyResult -> {
-          if (copyResult != PixelCopy.SUCCESS) {
-            bitmap = extractBitmapByDeprecatedDrawingCache(target);
-          }
-          bitmapExtractCompleted = true;
-          execute();
-        }, new Handler(Looper.getMainLooper())); // We will get the callback on the handler, probably don't use main, maybe it has to be main if we want to extract bitmap old fashioned way on error
+        PixelCopy.request(window, rect, bitmap, pixelCopyListener, handler);
+        usingPixelCopyWithDelayedExecute = true; // Must be after successful request, so if surface isn't ready, then the execute() actually executes request
+        if (Blurry.DO_LOG) Log.d(TAG, "PixelCopy: Registered for callback");
       } catch (IllegalArgumentException e) {
         // Handle missing surface. See Android source-code https://github.com/aosp-mirror/platform_frameworks_base/blob/master/graphics/java/android/view/PixelCopy.java
         // thus avoid IllegalArgumentException("Window doesn't have a backing surface!")
+        if (Blurry.DO_LOG) Log.d(TAG, "PixelCopy error (will fallback to manual extraction)", e);
         bitmap = extractBitmapByDeprecatedDrawingCache(target);
       }
     } else {
       bitmap = extractBitmapByDeprecatedDrawingCache(target);
-      bitmapExtractCompleted = true;
     }
-    if (BuildConfig.DEBUG) Log.i("Blurry", "Time to extract  bitmap: " + (System.currentTimeMillis() - start) + "ms"); // 25-60 ms
+    if (Blurry.DO_LOG) Log.d(TAG, "Time to extract  bitmap: " + (System.currentTimeMillis() - start) + "ms"); // 25-60 ms
   }
 
+  // This must run on main thread, as it accesses view-methods
   private Bitmap extractBitmapByDeprecatedDrawingCache(View target) {
     long start = System.currentTimeMillis();
     target.setDrawingCacheEnabled(true);
     target.destroyDrawingCache();
     target.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_LOW);
     final Bitmap bitmap = target.getDrawingCache();
-    if (BuildConfig.DEBUG) Log.i("Blurry", "Time to extract  bitmap: " + (System.currentTimeMillis() - start) + "ms"); // 25-60 ms
+    if (Blurry.DO_LOG) Log.d(TAG, "Time to extract  bitmap: " + (System.currentTimeMillis() - start) + "ms"); // 25-60 ms
     return bitmap;
   }
 
@@ -106,15 +116,20 @@ class BlurTask {
   }
 
   public void execute() {
-    if (bitmapExtractCompleted) {
-      THREAD_POOL.execute(() -> {
-        Context context = contextWeakRef.get();
-        // Do the work outside main-thread
-        Bitmap output = Blur.of(context, bitmap, factor);
-        if (callback != null) {
-          new Handler(Looper.getMainLooper()).post(() -> callback.done(output));
-        }
-      });
+    if (!usingPixelCopyWithDelayedExecute) {
+      executeInnerOnBackgroundThreadPool();
     }
+  }
+
+  private void executeInnerOnBackgroundThreadPool() {
+    THREAD_POOL.execute(() -> {
+      Context context = contextWeakRef.get();
+      if (context == null) return ; // if contextWeakRef has been destroyed
+      // Do the work outside main-thread
+      Bitmap output = Blur.of(context, bitmap, factor);
+      if (callback != null) {
+        handler.post(() -> callback.done(output)); // Run callback on main-thread
+      }
+    });
   }
 }
