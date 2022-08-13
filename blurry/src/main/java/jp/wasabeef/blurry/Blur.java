@@ -50,7 +50,7 @@ class Blur {
       return null;
     }
 
-    Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+    Bitmap bitmap = Bitmap.createBitmap(context.getResources().getDisplayMetrics(), width, height, Bitmap.Config.ARGB_8888);
 
     Canvas canvas = new Canvas(bitmap);
     canvas.scale(1 / (float) factor.sampling, 1 / (float) factor.sampling);

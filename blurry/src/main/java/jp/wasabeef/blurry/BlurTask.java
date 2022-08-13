@@ -61,7 +61,7 @@ class BlurTask {
     THREAD_POOL.execute(new Runnable() {
       @Override
       public void run() {
-        Context context = contextWeakRef.get();
+        final Context context = contextWeakRef.get();
         if (callback != null) {
           new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
