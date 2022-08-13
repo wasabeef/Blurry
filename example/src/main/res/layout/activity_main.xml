@@ -68,5 +68,12 @@
     android:textSize="88sp"
     android:textStyle="bold" />
 
+  <View
+    android:id="@+id/hotView"
+    android:layout_width="match_parent"
+    android:layout_height="150dp"
+    android:layout_alignLeft="@id/spacer"
+    android:layout_marginTop="100dp" />
+
 </RelativeLayout>
 

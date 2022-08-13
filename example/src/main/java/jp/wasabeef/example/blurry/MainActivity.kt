@@ -59,7 +59,7 @@ class MainActivity : AppCompatActivity() {
             .sampling(2)
             .async()
             .animate(500)
-            .onto(findViewById<View>(R.id.content) as ViewGroup)
+            .onto(findViewById<View>(R.id.content) as ViewGroup, findViewById(R.id.hotView))
           Log.d(getString(R.string.app_name),
             "TIME " + (System.currentTimeMillis() - startMs).toString() + "ms")
         }

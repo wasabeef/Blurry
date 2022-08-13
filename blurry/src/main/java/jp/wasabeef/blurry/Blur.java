@@ -6,6 +6,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
+import android.graphics.PorterDuffXfermode;
 import android.renderscript.Allocation;
 import android.renderscript.Element;
 import android.renderscript.RSRuntimeException;
@@ -49,7 +50,7 @@ class Blur {
       return null;
     }
 
-    Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+    Bitmap bitmap = Bitmap.createBitmap(context.getResources().getDisplayMetrics(), width, height, Bitmap.Config.ARGB_8888);
 
     Canvas canvas = new Canvas(bitmap);
     canvas.scale(1 / (float) factor.sampling, 1 / (float) factor.sampling);
@@ -64,6 +65,11 @@ class Blur {
       bitmap = Blur.rs(context, bitmap, factor.radius);
     } catch (RSRuntimeException e) {
       bitmap = Blur.stack(bitmap, factor.radius, true);
+    }
+
+    if (factor.hotRect != null) {
+      paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
+      canvas.drawBitmap(source, factor.hotRect, factor.hotRect, paint);
     }
 
     if (factor.sampling == BlurFactor.DEFAULT_SAMPLING) {
