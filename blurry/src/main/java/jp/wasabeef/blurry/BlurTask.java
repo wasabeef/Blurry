@@ -43,7 +43,6 @@ class BlurTask {
   private final BlurFactor factor;
   private final Handler handler = new Handler(Looper.getMainLooper());
   private Bitmap bitmap;
-  private View target;
   private final Callback callback;
   private static final ExecutorService THREAD_POOL = Executors.newCachedThreadPool();
   private boolean usingPixelCopyWithDelayedExecute;
@@ -83,7 +82,7 @@ class BlurTask {
       // - and it requires that the window has a backing surface, they recommend postponing till after first onDraw. In this case catch error an fall back to deprecated drawing cache.
       //   Alternatively we or the user must delay til after first Draw.
       try {
-        PixelCopy.request(window, rect, bitmap, createPixelCopyListener(), handler);
+        PixelCopy.request(window, rect, bitmap, createPixelCopyListener(target), handler);
         usingPixelCopyWithDelayedExecute = true; // Must be after successful request, so if surface isn't ready, then the execute() actually executes request
         if (Blurry.DO_LOG) Log.d(TAG, "PixelCopy: Registered for callback");
       } catch (IllegalArgumentException e) {
@@ -101,7 +100,7 @@ class BlurTask {
   }
 
   // @android.support.annotation.RequiresApi(api = Build.VERSION_CODES.N)
-  private PixelCopy.OnPixelCopyFinishedListener createPixelCopyListener() {
+  private PixelCopy.OnPixelCopyFinishedListener createPixelCopyListener(final View target) {
     return copyResult -> {
       // This runs on main thread, just as we expect the BlurTask constructor to run on
       @SuppressLint("InlinedApi") boolean isPixelCopySuccessful = copyResult == PixelCopy.SUCCESS;
