@@ -1,16 +1,14 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-    ext {
-        kotlin_version = '1.4.10'
-    }
+  ext.kotlin_version = '1.8.21'
 
     repositories {
         google()
-        jcenter()
+        mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.1.0-beta04'
+        classpath 'com.android.tools.build:gradle:7.2.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
 
       // TODO: Close JCenter on May 1st https://jfrog.com/blog/into-the-sunset-bintray-jcenter-gocenter-and-chartcenter/
@@ -23,6 +21,5 @@ allprojects {
     repositories {
         google()
         mavenCentral()
-        jcenter()
     }
 }

@@ -1,5 +1,6 @@
 package jp.wasabeef.example.blurry
 
+import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
@@ -8,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
+import jp.wasabeef.blurry.BlurTask
 import jp.wasabeef.blurry.Blurry
 
 class MainActivity : AppCompatActivity() {
@@ -37,9 +39,12 @@ class MainActivity : AppCompatActivity() {
         .sampling(4)
         .color(Color.argb(66, 255, 255, 0))
         .capture(findViewById(R.id.left_bottom))
-        .getAsync {
-          findViewById<ImageView>(R.id.left_bottom).setImageDrawable(BitmapDrawable(resources, it))
-        }
+        .getAsync(object : BlurTask.Callback {
+          override fun done(bitmap: Bitmap?) {
+            findViewById<ImageView>(R.id.left_bottom).setImageDrawable(BitmapDrawable(resources, bitmap))
+          }
+
+        })
 
       Log.d(getString(R.string.app_name),
         "TIME " + (System.currentTimeMillis() - startMs).toString() + "ms")
