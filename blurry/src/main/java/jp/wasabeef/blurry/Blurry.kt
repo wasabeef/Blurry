@@ -1,208 +1,192 @@
-package jp.wasabeef.blurry;
+package jp.wasabeef.blurry
 
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
+import android.content.Context
+import jp.wasabeef.blurry.Helper.animate
+import android.view.ViewGroup
+import jp.wasabeef.blurry.Blurry
+import jp.wasabeef.blurry.BlurFactor
+import jp.wasabeef.blurry.Blurry.ImageComposer
+import android.graphics.Bitmap
+import jp.wasabeef.blurry.Blurry.BitmapComposer
+import jp.wasabeef.blurry.BlurTask
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
+import android.view.View
+import android.widget.ImageView
 
 /**
  * Copyright (C) 2020 Wasabeef
- * <p>
+ *
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
+ *
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-public class Blurry {
-
-  private static final String TAG = Blurry.class.getSimpleName();
-
-  public static Composer with(Context context) {
-    return new Composer(context);
+object Blurry {
+  private val TAG = Blurry::class.java.simpleName
+  fun with(context: Context): Composer {
+    return Composer(context)
   }
 
-  public static void delete(ViewGroup target) {
-    View view = target.findViewWithTag(TAG);
+  fun delete(target: ViewGroup) {
+    val view = target.findViewWithTag<View>(TAG)
     if (view != null) {
-      target.removeView(view);
+      target.removeView(view)
     }
   }
 
-  public static class Composer {
-
-    private final View blurredView;
-    private final Context context;
-    private final BlurFactor factor;
-    private boolean async;
-    private boolean animate;
-    private int duration = 300;
-
-    public Composer(Context context) {
-      this.context = context;
-      blurredView = new View(context);
-      blurredView.setTag(TAG);
-      factor = new BlurFactor();
+  class Composer(private val context: Context) {
+    private val blurredView: View
+    private val factor: BlurFactor
+    private var async = false
+    private var animate = false
+    private var duration = 300
+    fun radius(radius: Int): Composer {
+      factor.radius = radius
+      return this
     }
 
-    public Composer radius(int radius) {
-      factor.radius = radius;
-      return this;
+    fun sampling(sampling: Int): Composer {
+      factor.sampling = sampling
+      return this
     }
 
-    public Composer sampling(int sampling) {
-      factor.sampling = sampling;
-      return this;
+    fun color(color: Int): Composer {
+      factor.color = color
+      return this
     }
 
-    public Composer color(int color) {
-      factor.color = color;
-      return this;
+    fun async(): Composer {
+      async = true
+      return this
     }
 
-    public Composer async() {
-      async = true;
-      return this;
+    fun animate(): Composer {
+      animate = true
+      return this
     }
 
-    public Composer animate() {
-      animate = true;
-      return this;
+    fun animate(duration: Int): Composer {
+      animate = true
+      this.duration = duration
+      return this
     }
 
-    public Composer animate(int duration) {
-      animate = true;
-      this.duration = duration;
-      return this;
+    fun capture(capture: View): ImageComposer {
+      return ImageComposer(context, capture, factor, async)
     }
 
-    public ImageComposer capture(View capture) {
-      return new ImageComposer(context, capture, factor, async);
+    fun from(bitmap: Bitmap): BitmapComposer {
+      return BitmapComposer(context, bitmap, factor, async)
     }
 
-    public BitmapComposer from(Bitmap bitmap) {
-      return new BitmapComposer(context, bitmap, factor, async);
-    }
-
-    public void onto(final ViewGroup target) {
-      factor.width = target.getMeasuredWidth();
-      factor.height = target.getMeasuredHeight();
-
+    fun onto(target: ViewGroup) {
+      factor.width = target.measuredWidth
+      factor.height = target.measuredHeight
       if (async) {
-        BlurTask task = new BlurTask(target, factor, new BlurTask.Callback() {
-          @Override
-          public void done(Bitmap bitmap) {
-            final BitmapDrawable drawable =
-              new BitmapDrawable(target.getResources(), Blur.of(context, bitmap, factor));
-            addView(target, drawable);
+        val task = BlurTask(target, factor, object : BlurTask.Callback {
+          override fun done(bitmap: Bitmap?) {
+            val drawable = BitmapDrawable(target.resources, Blur.of(context, bitmap, factor))
+            addView(target, drawable)
           }
-        });
-        task.execute();
+        })
+        task.execute()
       } else {
-        Drawable drawable = new BitmapDrawable(context.getResources(), Blur.of(target, factor));
-        addView(target, drawable);
+        val drawable: Drawable = BitmapDrawable(context.resources, Blur.of(target, factor))
+        addView(target, drawable)
       }
     }
 
-    private void addView(ViewGroup target, Drawable drawable) {
-      blurredView.setBackground(drawable);
-      target.addView(blurredView);
-
+    private fun addView(target: ViewGroup, drawable: Drawable) {
+      blurredView.background = drawable
+      target.addView(blurredView)
       if (animate) {
-        Helper.animate(blurredView, duration);
+        animate(blurredView, duration)
+      }
+    }
+
+    init {
+      blurredView = View(context)
+      blurredView.tag = TAG
+      factor = BlurFactor()
+    }
+  }
+
+  class BitmapComposer(
+    private val context: Context,
+    private val bitmap: Bitmap,
+    private val factor: BlurFactor,
+    private val async: Boolean
+  ) {
+    fun into(target: ImageView) {
+      factor.width = bitmap.width
+      factor.height = bitmap.height
+      if (async) {
+        val task = BlurTask(target.context, bitmap, factor, object : BlurTask.Callback {
+          override fun done(bitmap: Bitmap?) {
+            val drawable = BitmapDrawable(context.resources, bitmap)
+            target.setImageDrawable(drawable)
+          }
+        })
+        task.execute()
+      } else {
+        val drawable: Drawable = BitmapDrawable(
+          context.resources,
+          Blur.of(target.context, bitmap, factor)
+        )
+        target.setImageDrawable(drawable)
       }
     }
   }
 
-  public static class BitmapComposer {
-
-    private final Context context;
-    private final Bitmap bitmap;
-    private final BlurFactor factor;
-    private final boolean async;
-
-    public BitmapComposer(Context context, Bitmap bitmap, BlurFactor factor, boolean async) {
-      this.context = context;
-      this.bitmap = bitmap;
-      this.factor = factor;
-      this.async = async;
-    }
-
-    public void into(final ImageView target) {
-      factor.width = bitmap.getWidth();
-      factor.height = bitmap.getHeight();
-
+  class ImageComposer(
+    private val context: Context,
+    private val capture: View,
+    private val factor: BlurFactor,
+    private val async: Boolean
+  ) {
+    fun into(target: ImageView) {
+      factor.width = capture.measuredWidth
+      factor.height = capture.measuredHeight
       if (async) {
-        BlurTask task = new BlurTask(target.getContext(), bitmap, factor, new BlurTask.Callback() {
-          @Override
-          public void done(Bitmap bitmap) {
-            BitmapDrawable drawable = new BitmapDrawable(context.getResources(), bitmap);
-            target.setImageDrawable(drawable);
+        val task = BlurTask(capture, factor, object : BlurTask.Callback{
+          override fun done(bitmap: Bitmap?) {
+            val drawable = BitmapDrawable(context.resources, bitmap)
+            target.setImageDrawable(drawable)
           }
-        });
-        task.execute();
+        })
+        task.execute()
       } else {
-        Drawable drawable = new BitmapDrawable(context.getResources(),
-          Blur.of(target.getContext(), bitmap, factor));
-        target.setImageDrawable(drawable);
-      }
-    }
-  }
-
-  public static class ImageComposer {
-
-    private final Context context;
-    private final View capture;
-    private final BlurFactor factor;
-    private final boolean async;
-
-    public ImageComposer(Context context, View capture, BlurFactor factor, boolean async) {
-      this.context = context;
-      this.capture = capture;
-      this.factor = factor;
-      this.async = async;
-    }
-
-    public void into(final ImageView target) {
-      factor.width = capture.getMeasuredWidth();
-      factor.height = capture.getMeasuredHeight();
-
-      if (async) {
-        BlurTask task = new BlurTask(capture, factor, new BlurTask.Callback() {
-          @Override
-          public void done(Bitmap bitmap) {
-            BitmapDrawable drawable = new BitmapDrawable(context.getResources(), bitmap);
-            target.setImageDrawable(drawable);
-          }
-        });
-        task.execute();
-      } else {
-        Drawable drawable = new BitmapDrawable(context.getResources(), Blur.of(capture, factor));
-        target.setImageDrawable(drawable);
+        val drawable: Drawable = BitmapDrawable(
+          context.resources, Blur.of(
+            capture, factor
+          )
+        )
+        target.setImageDrawable(drawable)
       }
     }
 
-    public Bitmap get() {
-      if (async) throw new IllegalArgumentException("Use getAsync() instead of async().");
-      factor.width = capture.getMeasuredWidth();
-      factor.height = capture.getMeasuredHeight();
-      return Blur.of(capture, factor);
+    fun get(): Bitmap? {
+      require(!async) { "Use getAsync() instead of async()." }
+      factor.width = capture.measuredWidth
+      factor.height = capture.measuredHeight
+      return Blur.of(capture, factor)
     }
 
-    public void getAsync(BlurTask.Callback callback) {
-      factor.width = capture.getMeasuredWidth();
-      factor.height = capture.getMeasuredHeight();
-      new BlurTask(capture, factor, callback).execute();
+     fun getAsync(callback: BlurTask.Callback?) {
+      factor.width = capture.measuredWidth
+      factor.height = capture.measuredHeight
+      BlurTask(capture, factor, callback).execute()
     }
   }
 }
